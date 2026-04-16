@@ -1,145 +1,194 @@
-<script>
-    // 1. DATA STRUKTUR (Tetap Ada)
-    const CATEGORIES = [
-        { title: "Data & Tracking", questions: ["Setup GTM (Global)","Integrasi GA4 E-commerce","Meta Pixel & CAPI","Form Submission Tracking","WhatsApp Event Tracking","E-comm Checkout Tracking","Server-Side GTM Setup","Cross-Domain Tracking","Audit Kebocoran Data","Data Validation Routine"] },
-        { title: "Performance Ads", questions: ["Google Hotel Ads (GHA)","Brand Protection Ads","Dynamic Creative (DCO)","Sync Audience PMS","Retargeting Abandoned Booking","Share of Voice (Ads)","tROAS Optimization","A/B Testing Visual","Advantage+ Campaigns","Budget vs Demand Sync"] },
-        { title: "SEO & Content", questions: ["GBP (Maps) Optimization","Core Web Vitals Score","Content Strategy Lokal","Schema Markup Implementation","Quality Backlinks Profile","Image & Video Optimization","Internal Linking Web","Search Console Monitoring","Meta Titles Optimization","UI/UX Booking Engine"] },
-        { title: "Revenue Sync", questions: ["Rate Parity Monitoring","Demand Forecasting Tools","Members-only Web Promo","Sync Website vs OTA","RGI Strategy Digital","Digital Upselling Tool","Online Reputation Impact","Direct vs OTA Mix","Geo-Targeting Pricing","Digital Price Audit"] },
-        { title: "Strategy & Mgmt", questions: ["Content Pillar Plan","Vertical Video Strategy","CRM/Email Automation","Chatbot/DM Automation","Unified Monthly Report","Heatmap Analysis","Influencer ROI Tracking","Asset Management (DAM)","Social Crisis Protocol","Admin Efficiency Tools"] }
-    ];
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JHL Collections - Digital Maturity Audit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; }
+        .hidden { display: none !important; }
+        .survey-grid { display: grid; grid-template-columns: 3fr repeat(5, 1fr); border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+        .grid-cell { padding: 12px; border: 0.5px solid #f1f5f9; display: flex; align-items: center; justify-content: center; }
+        .grid-label { justify-content: flex-start; font-size: 0.875rem; color: #334155; }
+        .grid-header { background: #0f172a; color: white; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; }
+        input[type="radio"] { width: 1.2rem; height: 1.2rem; cursor: pointer; accent-color: #4f46e5; }
+        .step-content { display: none; }
+        .step-content.active { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-50">
 
-    let currentStep = 0;
-    let hotelName = "";
-    let userScores = Array(5).fill(0).map(() => Array(10).fill(0));
-    let liveRadar = null;
-    let db;
+    <div id="loader" class="fixed inset-0 bg-[#0f172a] z-[100] flex flex-col items-center justify-center text-white">
+        <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-[10px] font-bold tracking-widest uppercase">Menghubungkan ke Database...</p>
+    </div>
 
-    // 2. CONFIG (WAJIB: Isi API Key dari Console Anda)
-    const firebaseConfig = {
-        apiKey: "AIzaSyDq8cuvGJJrWD9_R7NoShQTRWhrj0-CNVc",
-        authDomain: "audit-digital-jhl-v2.firebaseapp.com"",
-        projectId: "audit-digital-jhl-v2",
-        storageBucket: "audit-digital-jhl-v2.firebasestorage.app",
-        messagingSenderId: "839003631596",
-        appId: "1:839003631596:web:64113b8bd1a38bf5d31ac9"
-    };
+    <div id="view-landing" class="min-h-screen flex items-center justify-center p-6 bg-[#0f172a] text-white">
+        <div class="max-w-md w-full text-center space-y-8">
+            <div class="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center mx-auto shadow-2xl rotate-3">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+            </div>
+            <div>
+                <h1 class="text-4xl font-black tracking-tighter uppercase">Hotel Audit</h1>
+                <p class="text-indigo-400 font-bold text-sm tracking-widest mt-2">Digital Maturity Analysis</p>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="hotel-name-input" placeholder="Nama Unit (Contoh: JHL Solitaire)" class="w-full p-4 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:ring-2 focus:ring-indigo-500">
+                <button onclick="startSurvey()" class="w-full bg-indigo-600 p-4 rounded-xl font-bold uppercase tracking-widest hover:bg-indigo-700 transition shadow-lg">Mulai Audit</button>
+            </div>
+        </div>
+    </div>
 
-    const appId = "audit-digital-jhl-v2";
+    <div id="view-survey" class="hidden min-h-screen">
+        <header class="bg-[#0f172a] text-white p-4 sticky top-0 z-50 flex justify-between items-center">
+            <span id="display-hotel-name" class="font-bold uppercase text-xs">Unit Name</span>
+            <div id="step-info-top" class="text-[10px] font-black text-slate-500 uppercase">Progress: 1/5</div>
+        </header>
+        <div class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-8 space-y-6">
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden" id="survey-container"></div>
+                <div class="flex justify-between items-center bg-white p-6 rounded-2xl border shadow-sm">
+                    <button id="prev-btn" onclick="moveStep(-1)" class="px-6 py-3 font-bold text-slate-400 text-sm uppercase">Kembali</button>
+                    <button id="next-btn" onclick="moveStep(1)" class="px-10 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-md uppercase text-sm tracking-widest">Lanjut</button>
+                </div>
+            </div>
+            <div class="lg:col-span-4">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 sticky top-24">
+                    <div class="h-64"><canvas id="liveRadar"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    // 3. PERBAIKAN UTAMA: Fungsi InitApp
-    async function initApp() {
-        try {
-            // Pastikan menggunakan 'firebase.initializeApp' karena mode COMPAT
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig); 
+    <div id="view-success" class="hidden min-h-screen flex items-center justify-center p-6 bg-slate-900 text-white text-center">
+        <div class="max-w-md space-y-6">
+            <div class="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-2xl">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="4" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h1 class="text-3xl font-black uppercase">Berhasil Dikirim</h1>
+            <p class="text-slate-400 text-sm italic">Audit <span id="success-hotel-name" class="text-white font-bold"></span> telah tersimpan.</p>
+            <button onclick="location.reload()" class="bg-white text-indigo-950 px-10 py-4 rounded-xl font-bold uppercase text-xs">Selesai</button>
+        </div>
+    </div>
+
+    <script>
+        const CATEGORIES = [
+            { title: "Data & Tracking", questions: ["Setup GTM (Global)","Integrasi GA4 E-commerce","Meta Pixel & CAPI","Form Submission Tracking","WhatsApp Event Tracking","E-comm Checkout Tracking","Server-Side GTM Setup","Cross-Domain Tracking","Audit Kebocoran Data","Data Validation Routine"] },
+            { title: "Performance Ads", questions: ["Google Hotel Ads (GHA)","Brand Protection Ads","Dynamic Creative (DCO)","Sync Audience PMS","Retargeting Abandoned Booking","Share of Voice (Ads)","tROAS Optimization","A/B Testing Visual","Advantage+ Campaigns","Budget vs Demand Sync"] },
+            { title: "SEO & Content", questions: ["GBP (Maps) Optimization","Core Web Vitals Score","Content Strategy Lokal","Schema Markup Implementation","Quality Backlinks Profile","Image & Video Optimization","Internal Linking Web","Search Console Monitoring","Meta Titles Optimization","UI/UX Booking Engine"] },
+            { title: "Revenue Sync", questions: ["Rate Parity Monitoring","Demand Forecasting Tools","Members-only Web Promo","Sync Website vs OTA","RGI Strategy Digital","Digital Upselling Tool","Online Reputation Impact","Direct vs OTA Mix","Geo-Targeting Pricing","Digital Price Audit"] },
+            { title: "Strategy & Mgmt", questions: ["Content Pillar Plan","Vertical Video Strategy","CRM/Email Automation","Chatbot/DM Automation","Unified Monthly Report","Heatmap Analysis","Influencer ROI Tracking","Asset Management (DAM)","Social Crisis Protocol","Admin Efficiency Tools"] }
+        ];
+
+        let currentStep = 0, hotelName = "", liveRadar = null, db = null;
+        let userScores = Array(5).fill(0).map(() => Array(10).fill(0));
+
+        // MASUKKAN CONFIG GOA4 JHLCOLLECTION ANDA DI SINI
+        const firebaseConfig = {
+            apiKey: "AIzaSyDq8cuvGJJrWD9_R7NoShQTRWhrj0-CNVc",
+            authDomain: "audit-digital-jhl-v2.firebaseapp.com",
+            projectId: "audit-digital-jhl-v2",
+            storageBucket: "audit-digital-jhl-v2.firebasestorage.app",
+            messagingSenderId: "839003631596",
+            appId: "1:839003631596:web:64113b8bd1a38bf5d31ac9"
+        };
+
+        async function initApp() {
+            try {
+                if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                await firebase.auth().signInAnonymously();
+                console.log("Firebase Connected");
+                switchView('landing');
+            } catch (e) {
+                console.error("Init Error:", e);
+                alert("Koneksi gagal: " + e.message);
+            } finally {
+                document.getElementById('loader').classList.add('hidden');
             }
-            db = firebase.firestore();
-            await firebase.auth().signInAnonymously();
-            console.log("Firebase Connected");
-        } catch (e) {
-            console.error("Firebase Connection Error:", e);
-        } finally {
-            // Loader PASTI tertutup jika baris ini dijalankan
-            const loader = document.getElementById('loader');
-            if (loader) loader.style.display = 'none';
         }
-    }
 
-    // 4. FUNGSI NAVIGASI & RENDER
-    function switchView(viewId) {
-        ['landing', 'survey', 'success', 'admin'].forEach(v => {
-            const el = document.getElementById('view-' + v);
-            if(el) el.classList.add('hidden');
-        });
-        document.getElementById('view-' + viewId).classList.remove('hidden');
-        if(viewId === 'admin') setupAdminListener();
-    }
-
-    function startSurvey() {
-        hotelName = document.getElementById('hotel-name-input').value.trim();
-        if(!hotelName) return alert("Masukkan nama unit.");
-        document.getElementById('display-hotel-name').innerText = hotelName;
-        renderSurvey();
-        initRadar();
-        switchView('survey');
-    }
-
-    function renderSurvey() {
-        const container = document.getElementById('survey-container');
-        container.innerHTML = '';
-        CATEGORIES.forEach((cat, cIdx) => {
-            const div = document.createElement('div');
-            div.className = `step-content ${cIdx === currentStep ? 'active' : ''}`;
-            let html = `<div class="bg-slate-50 p-6 border-b"><h2 class="text-xl font-black text-slate-800 uppercase">${cat.title}</h2></div><div class="survey-grid min-w-[600px]"><div class="grid-cell grid-header grid-label">Indikator</div>${[1,2,3,4,5].map(i => `<div class="grid-cell grid-header">${i}</div>`).join('')}`;
-            cat.questions.forEach((q, qIdx) => {
-                html += `<div class="grid-cell grid-label font-bold">${q}</div>` + [1,2,3,4,5].map(v => `<div class="grid-cell"><input type="radio" name="q_${cIdx}_${qIdx}" value="${v}" onchange="userScores[${cIdx}][${qIdx}]=${v}; updateRadar();" ${userScores[cIdx][qIdx] == v ? 'checked' : ''}></div>`).join('');
+        function switchView(viewId) {
+            ['landing', 'survey', 'success'].forEach(v => {
+                const el = document.getElementById('view-' + v);
+                if(el) el.classList.add('hidden');
             });
-            div.innerHTML = html + `</div>`;
-            container.appendChild(div);
-        });
-        updateUI();
-    }
-
-    function updateUI() {
-        document.getElementById('step-info-top').innerText = `Progress: ${currentStep + 1}/5`;
-        document.getElementById('prev-btn').style.visibility = currentStep === 0 ? 'hidden' : 'visible';
-        document.getElementById('next-btn').innerText = currentStep === 4 ? "Submit" : "Lanjut";
-    }
-
-    function moveStep(dir) {
-        if(dir === 1 && userScores[currentStep].includes(0)) return alert("Mohon lengkapi semua poin.");
-        currentStep += dir;
-        if(currentStep > 4) return submitData();
-        renderSurvey();
-    }
-
-    function initRadar() {
-        const ctx = document.getElementById('liveRadar');
-        if(liveRadar) liveRadar.destroy();
-        liveRadar = new Chart(ctx, {
-            type: 'radar',
-            data: { labels: CATEGORIES.map(c => c.title), datasets: [{ data: [0,0,0,0,0], borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)' }] },
-            options: { scales: { r: { min: 0, max: 100 } }, plugins: { legend: { display: false } } }
-        });
-    }
-
-    function updateRadar() {
-        if(!liveRadar) return;
-        liveRadar.data.datasets[0].data = userScores.map(cat => (cat.reduce((a,b)=>a+b,0)/50)*100);
-        liveRadar.update();
-    }
-
-    async function submitData() {
-        const averages = userScores.map(cat => (cat.reduce((a,b)=>a+b,0)/50)*100);
-        const overall = averages.reduce((a,b)=>a+b,0)/5;
-        try {
-            const path = `artifacts/${appId}/public/data/submissions`;
-            await db.collection(path).add({ hotelName, scores: averages, overall, timestamp: new Date().toISOString() });
-            document.getElementById('success-hotel-name').innerText = hotelName;
-            switchView('success');
-        } catch (e) {
-            console.error("Error saving:", e);
-            alert("Gagal mengirim data.");
+            const target = document.getElementById('view-' + viewId);
+            if(target) target.classList.remove('hidden');
         }
-    }
 
-    function setupAdminListener() {
-        const path = `artifacts/${appId}/public/data/submissions`;
-        db.collection(path).orderBy('overall', 'desc').onSnapshot(snap => {
-            const tbody = document.getElementById('admin-table-body');
-            tbody.innerHTML = '';
-            document.getElementById('total-count').innerText = snap.size;
-            snap.forEach(doc => {
-                const data = doc.data();
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td class="p-4 font-bold">${data.hotelName}</td><td class="p-4 font-black">${Math.round(data.overall)}%</td><td class="p-4">${data.overall > 70 ? 'Advanced' : 'Standard'}</td><td class="p-4 text-right"><button class="text-indigo-600 text-xs font-bold">Detail</button></td>`;
-                tbody.appendChild(tr);
+        function startSurvey() {
+            hotelName = document.getElementById('hotel-name-input').value.trim();
+            if(!hotelName) return alert("Masukkan nama unit.");
+            document.getElementById('display-hotel-name').innerText = hotelName;
+            renderSurvey();
+            initRadar();
+            switchView('survey');
+        }
+
+        function renderSurvey() {
+            const container = document.getElementById('survey-container');
+            container.innerHTML = '';
+            CATEGORIES.forEach((cat, cIdx) => {
+                const div = document.createElement('div');
+                div.className = `step-content ${cIdx === currentStep ? 'active' : ''}`;
+                let html = `<div class="bg-slate-50 p-6 border-b"><h2 class="text-xl font-black uppercase">${cat.title}</h2></div><div class="survey-grid min-w-[600px]"><div class="grid-cell grid-header">Indikator</div>${[1,2,3,4,5].map(i => `<div class="grid-cell grid-header">${i}</div>`).join('')}`;
+                cat.questions.forEach((q, qIdx) => {
+                    html += `<div class="grid-cell grid-label font-bold">${q}</div>` + [1,2,3,4,5].map(v => `<div class="grid-cell"><input type="radio" name="q_${cIdx}_${qIdx}" value="${v}" onchange="userScores[${cIdx}][${qIdx}]=${v}; updateRadar();" ${userScores[cIdx][qIdx] == v ? 'checked' : ''}></div>`).join('');
+                });
+                div.innerHTML = html + `</div>`;
+                container.appendChild(div);
             });
-        }, err => {
-            console.error("Admin Error:", err);
-            document.getElementById('admin-table-body').innerHTML = `<tr><td colspan="4" class="p-10 text-center text-red-500">Izin Database Ditolak.</td></tr>`;
-        });
-    }
+            updateUI();
+        }
 
-    window.onload = initApp;
-</script>
+        function updateUI() {
+            document.getElementById('step-info-top').innerText = `Progress: ${currentStep + 1}/5`;
+            document.getElementById('prev-btn').style.visibility = currentStep === 0 ? 'hidden' : 'visible';
+            document.getElementById('next-btn').innerText = currentStep === 4 ? "Submit" : "Lanjut";
+        }
+
+        function moveStep(dir) {
+            if(dir === 1 && userScores[currentStep].includes(0)) return alert("Mohon lengkapi semua poin.");
+            currentStep += dir;
+            if(currentStep > 4) return submitData();
+            renderSurvey();
+        }
+
+        function initRadar() {
+            const ctx = document.getElementById('liveRadar').getContext('2d');
+            if(liveRadar) liveRadar.destroy();
+            liveRadar = new Chart(ctx, {
+                type: 'radar',
+                data: { labels: CATEGORIES.map(c => c.title), datasets: [{ data: [0,0,0,0,0], borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)' }] },
+                options: { scales: { r: { min: 0, max: 100 } }, plugins: { legend: { display: false } } }
+            });
+        }
+
+        function updateRadar() {
+            if(!liveRadar) return;
+            liveRadar.data.datasets[0].data = userScores.map(cat => (cat.reduce((a,b)=>a+b,0)/50)*100);
+            liveRadar.update();
+        }
+
+        async function submitData() {
+            const averages = userScores.map(cat => (cat.reduce((a,b)=>a+b,0)/50)*100);
+            const overall = averages.reduce((a,b)=>a+b,0)/5;
+            try {
+                await db.collection('submissions').add({ hotelName, scores: averages, overall, timestamp: new Date().toISOString() });
+                document.getElementById('success-hotel-name').innerText = hotelName;
+                switchView('success');
+            } catch (e) { alert("Gagal kirim: " + e.message); }
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
