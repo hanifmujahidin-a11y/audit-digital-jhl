@@ -104,12 +104,29 @@
 
         async function initApp() {
             try {
-                if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+                // PERHATIKAN: Harus pakai awalan 'firebase.'
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig); 
+                }
                 db = firebase.firestore();
                 await firebase.auth().signInAnonymously();
-            } catch (e) { console.error(e); }
-            finally { document.getElementById('loader').style.display = 'none'; }
+                console.log("Firebase Connected");
+            } catch (e) {
+                console.error("Firebase Connection Error:", e);
+            } finally {
+                // Ini yang bertugas menutup loading screen
+                document.getElementById('loader').style.display = 'none';
+            }
         }
+        
+        //async function initApp() {
+        //    try {
+        //        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        //        db = firebase.firestore();
+        //        await firebase.auth().signInAnonymously();
+        //    } catch (e) { console.error(e); }
+        //    finally { document.getElementById('loader').style.display = 'none'; }
+        //}
 
         function switchView(viewId) {
             ['landing', 'survey', 'success'].forEach(v => document.getElementById('view-' + v).classList.add('hidden'));
