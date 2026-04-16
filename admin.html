@@ -82,7 +82,7 @@
         }
 
         function loadData() {
-            const path = `artifacts/${appId}/public/data/submissions`;
+            const path = `submissions`;
             db.collection(path).orderBy('timestamp', 'desc').onSnapshot(snap => {
                 const tbody = document.getElementById('admin-table-body');
                 tbody.innerHTML = '';
