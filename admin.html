@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JHL Corporate - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen">
+
+    <header class="bg-[#0f172a] text-white p-6 shadow-xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-black uppercase tracking-tighter">Corporate Admin</h1>
+                <p class="text-[10px] text-indigo-400 font-bold tracking-[0.3em]">DIGITAL MATURITY HUB</p>
+            </div>
+            <button onclick="window.location.href='index.html'" class="text-[10px] font-bold uppercase bg-slate-800 px-4 py-2 rounded-lg hover:bg-slate-700 transition">Portal Audit</button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-6 space-y-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-indigo-600 p-8 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
+                <p class="text-xs font-bold uppercase opacity-70 tracking-widest mb-1">Total Unit Terdata</p>
+                <h3 id="total-count" class="text-6xl font-black italic">0</h3>
+                <div class="absolute -right-4 -bottom-4 opacity-10">
+                    <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h4 class="font-black uppercase text-sm text-slate-500 tracking-widest">Daftar Hasil Audit Hotel</h4>
+                <button onclick="loadData()" class="text-xs font-bold text-indigo-600 uppercase">Refresh Data</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-400">
+                        <tr>
+                            <th class="p-6">Unit Hotel</th>
+                            <th class="p-6">Average Score</th>
+                            <th class="p-6">Maturity Status</th>
+                            <th class="p-6">Waktu Input</th>
+                            <th class="p-6 text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body" class="divide-y divide-slate-100 text-sm">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // CONFIG FIREBASE (Sama dengan index.html anda)
+        const firebaseConfig = {
+            apiKey: "",
+            authDomain: "jhl-audit.firebaseapp.com",
+            projectId: "jhl-audit",
+            storageBucket: "jhl-audit.appspot.com",
+            messagingSenderId: "",
+            appId: ""
+        };
+
+        const appId = "audit-digital-jhl-v2";
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        async function initAdmin() {
+            try {
+                await firebase.auth().signInAnonymously();
+                loadData();
+            } catch (e) { console.error(e); }
+        }
+
+        function loadData() {
+            const path = `artifacts/${appId}/public/data/submissions`;
+            db.collection(path).orderBy('timestamp', 'desc').onSnapshot(snap => {
+                const tbody = document.getElementById('admin-table-body');
+                tbody.innerHTML = '';
+                document.getElementById('total-count').innerText = snap.size;
+
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    const date = new Date(data.timestamp).toLocaleDateString('id-ID', {
+                        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+                    });
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 transition";
+                    tr.innerHTML = `
+                        <td class="p-6 font-bold text-slate-800">${data.hotelName}</td>
+                        <td class="p-6 font-black text-indigo-600 text-lg">${Math.round(data.overall)}%</td>
+                        <td class="p-6">
+                            <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${data.overall > 70 ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}">
+                                ${data.overall > 70 ? 'Advanced' : 'Standard'}
+                            </span>
+                        </td>
+                        <td class="p-6 text-slate-400 text-xs">${date}</td>
+                        <td class="p-6 text-right">
+                            <button class="bg-slate-800 text-white text-[10px] font-black uppercase px-4 py-2 rounded-lg hover:bg-indigo-600 transition">Detail</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+        }
+
+        window.onload = initAdmin;
+    </script>
+</body>
+</html>
