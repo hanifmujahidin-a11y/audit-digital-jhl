@@ -259,20 +259,17 @@
     // ⚠️  GANTI DENGAN CONFIG DARI FIREBASE CONSOLE ANDA
     // Firebase Console → Project Settings → Your apps → SDK setup
     // ============================================================
-    // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDq8cuvGJJrWD9_R7NoShQTRWhrj0-CNVc",
-  authDomain: "audit-digital-jhl-v2.firebaseapp.com",
-  projectId: "audit-digital-jhl-v2",
-  storageBucket: "audit-digital-jhl-v2.firebasestorage.app",
-  messagingSenderId: "839003631596",
-  appId: "1:839003631596:web:64113b8bd1a38bf5d31ac9"
-};
+const app = initializeApp(firebaseConfig);
+    const firebaseConfig = {
+      apiKey: "AIzaSyDq8cuvGJJrWD9_R7NoShQTRWhrj0-CNVc",
+      authDomain: "audit-digital-jhl-v2.firebaseapp.com",
+      projectId: "audit-digital-jhl-v2",
+      storageBucket: "audit-digital-jhl-v2.firebasestorage.app",
+      messagingSenderId: "839003631596",
+      appId: "1:839003631596:web:64113b8bd1a38bf5d31ac9"
+    };
 
 // Initialize Firebase
 //const app = initializeApp(firebaseConfig);
@@ -292,7 +289,7 @@ const firebaseConfig = {
     // ============================================================
     const ALLOWED_ADMIN_EMAILS = [
         "admin@jhl.com",
-        "digital@jhlcollections.com"
+        "hanif.mujahidin@jhlcollections.com"
         // Tambahkan email admin lain di sini
     ];
 
