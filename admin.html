@@ -82,23 +82,24 @@
         }
 
         function loadData() {
-            const path = `submissions`;
+            const path = `submissions`; 
+    
             db.collection(path).orderBy('timestamp', 'desc').onSnapshot(snap => {
                 const tbody = document.getElementById('admin-table-body');
                 tbody.innerHTML = '';
                 document.getElementById('total-count').innerText = snap.size;
-
+        
                 snap.forEach(doc => {
                     const data = doc.data();
-                    const date = new Date(data.timestamp).toLocaleDateString('id-ID', {
+                    const date = data.timestamp ? new Date(data.timestamp).toLocaleDateString('id-ID', {
                         day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
-                    });
-
+                    }) : '-';
+        
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition";
                     tr.innerHTML = `
-                        <td class="p-6 font-bold text-slate-800">${data.hotelName}</td>
-                        <td class="p-6 font-black text-indigo-600 text-lg">${Math.round(data.overall)}%</td>
+                        <td class="p-6 font-bold text-slate-800">${data.hotelName || 'Tanpa Nama'}</td>
+                        <td class="p-6 font-black text-indigo-600 text-lg">${Math.round(data.overall || 0)}%</td>
                         <td class="p-6">
                             <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${data.overall > 70 ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}">
                                 ${data.overall > 70 ? 'Advanced' : 'Standard'}
@@ -111,6 +112,8 @@
                     `;
                     tbody.appendChild(tr);
                 });
+            }, err => {
+                console.error("Gagal ambil data:", err);
             });
         }
 
