@@ -104,7 +104,7 @@
 
         async function initApp() {
             try {
-                // PERHATIKAN: Harus pakai awalan 'firebase.'
+                // PERBAIKAN UTAMA: Tambahkan 'firebase.' sebelum initializeApp
                 if (!firebase.apps.length) {
                     firebase.initializeApp(firebaseConfig); 
                 }
@@ -114,8 +114,9 @@
             } catch (e) {
                 console.error("Firebase Connection Error:", e);
             } finally {
-                // Ini yang bertugas menutup loading screen
-                document.getElementById('loader').style.display = 'none';
+                // Menghilangkan loading screen
+                const loader = document.getElementById('loader');
+                if (loader) loader.style.display = 'none';
             }
         }
         
