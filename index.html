@@ -6,55 +6,87 @@
     <title>JHL Collections - Digital Maturity Audit</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Firebase SDK Compat Mode -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        /* Survey Grid */
         .survey-grid { display: grid; grid-template-columns: 3fr repeat(5, 1fr); border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
         .grid-cell { padding: 12px; border: 0.5px solid #f1f5f9; display: flex; align-items: center; justify-content: center; }
         .grid-label { justify-content: flex-start; font-size: 0.875rem; color: #334155; }
         .grid-header { background: #0f172a; color: white; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; }
         input[type="radio"] { width: 1.2rem; height: 1.2rem; cursor: pointer; accent-color: #4f46e5; }
+
+        /* Step animation */
         .step-content { display: none; }
         .step-content.active { display: block; animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Admin Login shake animation */
+        @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
+        .shake { animation: shake 0.4s ease; }
+
+        /* Modal overlay */
+        .modal-overlay { backdrop-filter: blur(4px); }
+
+        /* Score badge */
+        .badge-advanced { background: #d1fae5; color: #065f46; }
+        .badge-standard { background: #fef3c7; color: #92400e; }
+        .badge-basic { background: #fee2e2; color: #991b1b; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
     </style>
 </head>
 <body class="bg-slate-50">
 
-    <div id="loader" class="fixed inset-0 bg-[#0f172a] z-[100] flex flex-col items-center justify-center text-white">
+    <!-- ==================== LOADER ==================== -->
+    <div id="loader" class="fixed inset-0 bg-[#0f172a] z-[200] flex flex-col items-center justify-center text-white transition-opacity duration-500">
         <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p id="loader-status" class="text-[10px] font-bold tracking-widest uppercase">Menghubungkan ke Database...</p>
+        <p class="text-[10px] font-bold tracking-widest uppercase opacity-60">Menghubungkan ke Database...</p>
     </div>
 
-    <!-- View: Landing -->
-    <div id="view-landing" class="min-h-screen flex items-center justify-center p-6 bg-[#0f172a] text-white">
+    <!-- ==================== VIEW: LANDING ==================== -->
+    <div id="view-landing" class="hidden min-h-screen flex items-center justify-center p-6 bg-[#0f172a] text-white">
         <div class="max-w-md w-full text-center space-y-8">
             <div class="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center mx-auto shadow-2xl rotate-3">
-                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                </svg>
             </div>
             <div>
                 <h1 class="text-4xl font-black tracking-tighter uppercase leading-none">Hotel Audit</h1>
                 <p class="text-indigo-400 font-bold text-sm tracking-[0.2em] mt-2 italic">Digital Maturity Analysis</p>
             </div>
             <div class="space-y-4 pt-4">
-                <input type="text" id="hotel-name-input" placeholder="Nama Unit (Contoh: JHL Solitaire)" class="w-full p-4 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:ring-2 focus:ring-indigo-500 shadow-inner">
-                <button onclick="startSurvey()" class="w-full bg-indigo-600 p-4 rounded-xl font-bold uppercase tracking-widest hover:bg-indigo-700 transition shadow-lg">Mulai Audit</button>
-                <button onclick="switchView('admin')" class="text-[10px] text-slate-500 hover:text-indigo-400 uppercase font-bold tracking-[0.2em] pt-4 block w-full">Dashboard Admin</button>
+                <input type="text" id="hotel-name-input"
+                    placeholder="Nama Unit (Contoh: JHL Solitaire)"
+                    class="w-full p-4 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:ring-2 focus:ring-indigo-500 shadow-inner">
+                <button onclick="startSurvey()"
+                    class="w-full bg-indigo-600 p-4 rounded-xl font-bold uppercase tracking-widest hover:bg-indigo-700 transition shadow-lg">
+                    Mulai Audit
+                </button>
+                <!-- Tombol admin — akan buka modal login -->
+                <button onclick="openAdminLogin()"
+                    class="text-[10px] text-slate-500 hover:text-indigo-400 uppercase font-bold tracking-[0.2em] pt-4 block w-full transition">
+                    Dashboard Admin
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- View: Survey -->
+    <!-- ==================== VIEW: SURVEY ==================== -->
     <div id="view-survey" class="hidden min-h-screen">
         <header class="bg-[#0f172a] text-white p-4 sticky top-0 z-50 flex justify-between items-center border-b border-slate-800">
             <span id="display-hotel-name" class="font-bold uppercase tracking-tight text-xs">Unit Name</span>
             <div id="step-info-top" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Progress: 1/5</div>
         </header>
-
         <div class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div class="lg:col-span-8 space-y-6">
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden" id="survey-container"></div>
@@ -65,17 +97,20 @@
             </div>
             <div class="lg:col-span-4">
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 sticky top-24">
+                    <p class="text-[10px] font-bold uppercase text-slate-400 tracking-widest mb-3">Live Score Preview</p>
                     <div class="h-64"><canvas id="liveRadar"></canvas></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- View: Success -->
+    <!-- ==================== VIEW: SUCCESS ==================== -->
     <div id="view-success" class="hidden min-h-screen flex items-center justify-center p-6 bg-slate-900 text-white text-center">
         <div class="max-w-md space-y-6">
             <div class="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-2xl">
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"/>
+                </svg>
             </div>
             <h1 class="text-3xl font-black uppercase tracking-tighter">Berhasil Dikirim</h1>
             <p class="text-slate-400 text-sm">Audit <span id="success-hotel-name" class="text-white font-bold"></span> telah tersimpan di Cloud Database.</p>
@@ -83,188 +118,624 @@
         </div>
     </div>
 
-    <!-- View: Admin -->
+    <!-- ==================== VIEW: ADMIN ==================== -->
     <div id="view-admin" class="hidden min-h-screen bg-slate-50">
-        <header class="bg-indigo-950 text-white p-6 flex justify-between items-center">
-            <h2 class="font-black uppercase tracking-tighter text-xl">Admin Dashboard</h2>
-            <button onclick="switchView('landing')" class="text-xs font-bold uppercase opacity-60">Kembali</button>
-        </header>
-        <div class="max-w-6xl mx-auto p-6 space-y-6">
-            <div class="bg-indigo-600 p-8 rounded-3xl text-white flex justify-between items-center">
-                <div>
-                    <p class="text-xs font-bold uppercase opacity-70 tracking-widest">Total Unit Terdata</p>
-                    <h3 id="total-count" class="text-6xl font-black">0</h3>
+        <header class="bg-indigo-950 text-white p-5 flex justify-between items-center shadow-lg">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
                 </div>
-                <button onclick="setupAdminListener()" class="bg-white/20 px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-white/30 transition">Refresh Data</button>
+                <div>
+                    <h2 class="font-black uppercase tracking-tighter text-sm">Admin Dashboard</h2>
+                    <p id="admin-email-display" class="text-indigo-400 text-[10px]">—</p>
+                </div>
             </div>
-            <div class="bg-white rounded-2xl border shadow-sm overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-400 border-b">
-                        <tr><th class="p-4">Unit Hotel</th><th class="p-4">Skor</th><th class="p-4">Status</th><th class="p-4 text-right">Aksi</th></tr>
-                    </thead>
-                    <tbody id="admin-table-body" class="divide-y text-sm"></tbody>
-                </table>
+            <button onclick="adminLogout()" class="flex items-center gap-2 text-xs font-bold uppercase text-indigo-300 hover:text-white transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                Logout
+            </button>
+        </header>
+
+        <div class="max-w-6xl mx-auto p-6 space-y-6">
+            <!-- Stats row -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-indigo-600 p-6 rounded-2xl text-white">
+                    <p class="text-xs font-bold uppercase opacity-70 tracking-widest">Total Unit</p>
+                    <h3 id="total-count" class="text-5xl font-black mt-1">0</h3>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                    <p class="text-xs font-bold uppercase text-slate-400 tracking-widest">Rata-rata Skor</p>
+                    <h3 id="avg-score" class="text-5xl font-black mt-1 text-slate-800">0%</h3>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                    <p class="text-xs font-bold uppercase text-slate-400 tracking-widest">Skor Tertinggi</p>
+                    <h3 id="top-score" class="text-5xl font-black mt-1 text-emerald-600">0%</h3>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
+                <div class="flex justify-between items-center p-4 border-b">
+                    <h3 class="font-bold text-sm text-slate-700 uppercase tracking-wider">Hasil Audit Unit</h3>
+                    <button onclick="setupAdminListener()" class="bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg text-xs font-bold uppercase hover:bg-indigo-100 transition flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        Refresh
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-400 border-b">
+                            <tr>
+                                <th class="p-4">Unit Hotel</th>
+                                <th class="p-4">Overall</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4">Tanggal</th>
+                                <th class="p-4 text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-table-body" class="divide-y text-sm text-slate-700"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- ==================== MODAL: ADMIN LOGIN ==================== -->
+    <div id="modal-admin-login" class="hidden fixed inset-0 z-[150] flex items-center justify-center p-4 modal-overlay bg-black/60">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 relative" id="login-card">
+            <!-- Close -->
+            <button onclick="closeAdminLogin()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+            <!-- Header -->
+            <div class="text-center mb-6">
+                <div class="w-14 h-14 bg-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-7 h-7 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-black text-slate-900 uppercase tracking-tighter">Admin Login</h2>
+                <p class="text-xs text-slate-400 mt-1">Akses terbatas untuk administrator</p>
+            </div>
+            <!-- Form -->
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Email Admin</label>
+                    <input type="email" id="admin-email" placeholder="admin@jhl.com"
+                        class="w-full p-3.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                        onkeydown="if(event.key==='Enter') adminLogin()">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Password</label>
+                    <div class="relative">
+                        <input type="password" id="admin-password" placeholder="••••••••"
+                            class="w-full p-3.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition pr-10"
+                            onkeydown="if(event.key==='Enter') adminLogin()">
+                        <button onclick="togglePassword()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                            <svg id="eye-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <!-- Error message -->
+                <div id="login-error" class="hidden bg-red-50 text-red-600 text-xs font-bold p-3 rounded-xl border border-red-100"></div>
+                <!-- Submit -->
+                <button onclick="adminLogin()" id="login-btn"
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white p-3.5 rounded-xl font-bold uppercase tracking-widest text-sm transition shadow-lg">
+                    Masuk
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: DETAIL UNIT ==================== -->
+    <div id="modal-detail" class="hidden fixed inset-0 z-[150] flex items-center justify-center p-4 modal-overlay bg-black/60">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-8 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeDetail()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+            <h2 id="detail-hotel-name" class="text-xl font-black text-slate-900 uppercase tracking-tighter mb-1">Hotel Name</h2>
+            <p id="detail-date" class="text-xs text-slate-400 mb-6">—</p>
+            <div class="h-64 mb-6"><canvas id="detailRadar"></canvas></div>
+            <div id="detail-scores" class="space-y-3"></div>
+        </div>
+    </div>
+
     <script>
-        const CATEGORIES = [
-            { title: "Data & Tracking", questions: ["Setup GTM (Global)","Integrasi GA4 E-commerce","Meta Pixel & CAPI","Form Submission Tracking","WhatsApp Event Tracking","E-comm Checkout Tracking","Server-Side GTM Setup","Cross-Domain Tracking","Audit Kebocoran Data","Data Validation Routine"] },
-            { title: "Performance Ads", questions: ["Google Hotel Ads (GHA)","Brand Protection Ads","Dynamic Creative (DCO)","Sync Audience PMS","Retargeting Abandoned Booking","Share of Voice (Ads)","tROAS Optimization","A/B Testing Visual","Advantage+ Campaigns","Budget vs Demand Sync"] },
-            { title: "SEO & Content", questions: ["GBP (Maps) Optimization","Core Web Vitals Score","Content Strategy Lokal","Schema Markup Implementation","Quality Backlinks Profile","Image & Video Optimization","Internal Linking Web","Search Console Monitoring","Meta Titles Optimization","UI/UX Booking Engine"] },
-            { title: "Revenue Sync", questions: ["Rate Parity Monitoring","Demand Forecasting Tools","Members-only Web Promo","Sync Website vs OTA","RGI Strategy Digital","Digital Upselling Tool","Online Reputation Impact","Direct vs OTA Mix","Geo-Targeting Pricing","Digital Price Audit"] },
-            { title: "Strategy & Mgmt", questions: ["Content Pillar Plan","Vertical Video Strategy","CRM/Email Automation","Chatbot/DM Automation","Unified Monthly Report","Heatmap Analysis","Influencer ROI Tracking","Asset Management (DAM)","Social Crisis Protocol","Admin Efficiency Tools"] }
-        ];
+    // ============================================================
+    // KONFIGURASI FIREBASE
+    // ⚠️  GANTI DENGAN CONFIG DARI FIREBASE CONSOLE ANDA
+    // Firebase Console → Project Settings → Your apps → SDK setup
+    // ============================================================
+    const firebaseConfig = {
+        apiKey: "GANTI_DENGAN_API_KEY_ANDA",
+        authDomain: "jhl-audit.firebaseapp.com",
+        projectId: "jhl-audit",
+        storageBucket: "jhl-audit.appspot.com",
+        messagingSenderId: "GANTI_DENGAN_SENDER_ID_ANDA",
+        appId: "GANTI_DENGAN_APP_ID_ANDA"
+    };
 
-        let currentStep = 0;
-        let hotelName = "";
-        let userScores = Array(5).fill(0).map(() => Array(10).fill(0));
-        let liveRadar = null;
-        let db;
-        let currentUser = null;
-        
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'audit-digital-jhl-v2';
-        const firebaseConfig = JSON.parse(__firebase_config);
+    // ============================================================
+    // KONFIGURASI ADMIN
+    // Daftar email yang diizinkan sebagai admin.
+    // Tambah/hapus email sesuai kebutuhan.
+    // ============================================================
+    const ALLOWED_ADMIN_EMAILS = [
+        "admin@jhl.com",
+        "digital@jhlcollections.com"
+        // Tambahkan email admin lain di sini
+    ];
 
-        async function initApp() {
-            try {
-                if (!firebase.apps.length) {
-                    firebase.initializeApp(firebaseConfig);
-                }
-                db = firebase.firestore();
-                
-                // Rule 3: Auth Before Queries
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await firebase.auth().signInWithCustomToken(__initial_auth_token);
-                } else {
-                    await firebase.auth().signInAnonymously();
-                }
+    // ============================================================
+    // PATH FIRESTORE (TERPISAH)
+    //   PUBLIC  → hanya untuk simpan submission user (write only)
+    //   PRIVATE → hanya bisa dibaca oleh admin yang login
+    // Firestore Security Rules yang direkomendasikan ada di bawah
+    // ============================================================
+    const APP_ID       = "audit-digital-jhl-v2";
+    const PATH_PUBLIC  = `artifacts/${APP_ID}/public/submissions`;   // user write
+    const PATH_PRIVATE = `artifacts/${APP_ID}/private/submissions`;  // admin read
 
-                firebase.auth().onAuthStateChanged((user) => {
-                    currentUser = user;
-                    if (user) {
-                        console.log("Authenticated as:", user.uid);
-                        document.getElementById('loader').style.display = 'none';
+    // ============================================================
+    // STATE APLIKASI
+    // ============================================================
+    const CATEGORIES = [
+        { title: "Data & Tracking",   questions: ["Setup GTM (Global)","Integrasi GA4 E-commerce","Meta Pixel & CAPI","Form Submission Tracking","WhatsApp Event Tracking","E-comm Checkout Tracking","Server-Side GTM Setup","Cross-Domain Tracking","Audit Kebocoran Data","Data Validation Routine"] },
+        { title: "Performance Ads",   questions: ["Google Hotel Ads (GHA)","Brand Protection Ads","Dynamic Creative (DCO)","Sync Audience PMS","Retargeting Abandoned Booking","Share of Voice (Ads)","tROAS Optimization","A/B Testing Visual","Advantage+ Campaigns","Budget vs Demand Sync"] },
+        { title: "SEO & Content",     questions: ["GBP (Maps) Optimization","Core Web Vitals Score","Content Strategy Lokal","Schema Markup Implementation","Quality Backlinks Profile","Image & Video Optimization","Internal Linking Web","Search Console Monitoring","Meta Titles Optimization","UI/UX Booking Engine"] },
+        { title: "Revenue Sync",      questions: ["Rate Parity Monitoring","Demand Forecasting Tools","Members-only Web Promo","Sync Website vs OTA","RGI Strategy Digital","Digital Upselling Tool","Online Reputation Impact","Direct vs OTA Mix","Geo-Targeting Pricing","Digital Price Audit"] },
+        { title: "Strategy & Mgmt",   questions: ["Content Pillar Plan","Vertical Video Strategy","CRM/Email Automation","Chatbot/DM Automation","Unified Monthly Report","Heatmap Analysis","Influencer ROI Tracking","Asset Management (DAM)","Social Crisis Protocol","Admin Efficiency Tools"] }
+    ];
+
+    let currentStep  = 0;
+    let hotelName    = "";
+    let userScores   = Array(5).fill(0).map(() => Array(10).fill(0));
+    let liveRadar    = null;
+    let detailRadar  = null;
+    let db, auth;
+    let adminUnsubscribe = null; // untuk stop listener saat logout
+
+    // ============================================================
+    // INIT FIREBASE
+    // ============================================================
+    async function initApp() {
+        try {
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            db   = firebase.firestore();
+            auth = firebase.auth();
+
+            // Pantau status login admin secara real-time
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    const isAllowed = ALLOWED_ADMIN_EMAILS.includes(user.email);
+                    if (!isAllowed) {
+                        // Email terdaftar di Firebase tapi tidak di whitelist — paksa logout
+                        auth.signOut();
+                        return;
                     }
-                });
-            } catch (e) {
-                console.error("Firebase Connection Error:", e);
-                document.getElementById('loader-status').innerText = "Koneksi Gagal. Cek API Key.";
-            }
-        }
-
-        function switchView(viewId) {
-            ['landing', 'survey', 'success', 'admin'].forEach(v => document.getElementById('view-' + v).classList.add('hidden'));
-            document.getElementById('view-' + viewId).classList.remove('hidden');
-            if(viewId === 'admin') setupAdminListener();
-        }
-
-        function startSurvey() {
-            hotelName = document.getElementById('hotel-name-input').value.trim();
-            if(!hotelName) return alert("Masukkan nama unit.");
-            document.getElementById('display-hotel-name').innerText = hotelName;
-            renderSurvey();
-            initRadar();
-            switchView('survey');
-        }
-
-        function renderSurvey() {
-            const container = document.getElementById('survey-container');
-            container.innerHTML = '';
-            CATEGORIES.forEach((cat, cIdx) => {
-                const div = document.createElement('div');
-                div.className = `step-content ${cIdx === currentStep ? 'active' : ''}`;
-                div.id = `step-${cIdx}`;
-                let html = `<div class="bg-slate-50 p-6 border-b"><h2 class="text-xl font-black text-slate-800 uppercase">${cat.title}</h2></div><div class="survey-grid min-w-[600px]"><div class="grid-cell grid-header grid-label">Indikator</div>${[1,2,3,4,5].map(i => `<div class="grid-cell grid-header">${i}</div>`).join('')}`;
-                cat.questions.forEach((q, qIdx) => {
-                    html += `<div class="grid-cell grid-label font-bold">${q}</div>` + [1,2,3,4,5].map(v => `<div class="grid-cell"><input type="radio" name="q_${cIdx}_${qIdx}" value="${v}" onchange="userScores[${cIdx}][${qIdx}]=${v}; updateRadar();" ${userScores[cIdx][qIdx] == v ? 'checked' : ''}></div>`).join('');
-                });
-                div.innerHTML = html + `</div>`;
-                container.appendChild(div);
+                    // Admin valid — tampilkan dashboard
+                    document.getElementById('admin-email-display').textContent = user.email;
+                    closeAdminLogin();
+                    switchView('admin');
+                }
             });
-            updateUI();
-        }
 
-        function updateUI() {
-            document.getElementById('step-info-top').innerText = `Progress: ${currentStep + 1}/5`;
-            document.getElementById('prev-btn').style.visibility = currentStep === 0 ? 'hidden' : 'visible';
-            document.getElementById('next-btn').innerText = currentStep === 4 ? "Submit" : "Lanjut";
+            console.log("Firebase Connected ✅");
+        } catch (e) {
+            console.error("Firebase Connection Error:", e);
+            alert("Gagal terhubung ke database. Periksa konfigurasi Firebase.");
+        } finally {
+            document.getElementById('loader').classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+            switchView('landing');
         }
+    }
 
-        function moveStep(dir) {
-            if(dir === 1 && userScores[currentStep].includes(0)) return alert("Mohon lengkapi semua poin.");
-            currentStep += dir;
-            if(currentStep > 4) return submitData();
-            renderSurvey();
-        }
+    // ============================================================
+    // VIEW SWITCHER
+    // ============================================================
+    function switchView(viewId) {
+        ['landing','survey','success','admin'].forEach(v => {
+            document.getElementById('view-' + v).classList.add('hidden');
+        });
+        document.getElementById('view-' + viewId).classList.remove('hidden');
+        if (viewId === 'admin') setupAdminListener();
+    }
 
-        function initRadar() {
-            const ctx = document.getElementById('liveRadar');
-            liveRadar = new Chart(ctx, {
-                type: 'radar',
-                data: { labels: CATEGORIES.map(c => c.title), datasets: [{ data: [0,0,0,0,0], borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)' }] },
-                options: { scales: { r: { min: 0, max: 100 } }, plugins: { legend: { display: false } } }
+    // ============================================================
+    // SURVEY — USER
+    // ============================================================
+    function startSurvey() {
+        hotelName = document.getElementById('hotel-name-input').value.trim();
+        if (!hotelName) { alert("Masukkan nama unit."); return; }
+        document.getElementById('display-hotel-name').innerText = hotelName;
+        currentStep = 0;
+        userScores  = Array(5).fill(0).map(() => Array(10).fill(0));
+        renderSurvey();
+        initRadar();
+        switchView('survey');
+    }
+
+    function renderSurvey() {
+        const container = document.getElementById('survey-container');
+        container.innerHTML = '';
+        CATEGORIES.forEach((cat, cIdx) => {
+            const div = document.createElement('div');
+            div.className = `step-content ${cIdx === currentStep ? 'active' : ''}`;
+            div.id = `step-${cIdx}`;
+            let html = `
+                <div class="bg-slate-50 p-6 border-b">
+                    <p class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-1">Kategori ${cIdx+1} dari 5</p>
+                    <h2 class="text-xl font-black text-slate-800 uppercase">${cat.title}</h2>
+                </div>
+                <div class="survey-grid min-w-[600px]">
+                    <div class="grid-cell grid-header grid-label">Indikator</div>
+                    ${[1,2,3,4,5].map(i => `<div class="grid-cell grid-header">${i}</div>`).join('')}
+            `;
+            cat.questions.forEach((q, qIdx) => {
+                html += `<div class="grid-cell grid-label font-bold">${q}</div>` +
+                    [1,2,3,4,5].map(v =>
+                        `<div class="grid-cell"><input type="radio" name="q_${cIdx}_${qIdx}" value="${v}"
+                            onchange="userScores[${cIdx}][${qIdx}]=${v}; updateRadar();"
+                            ${userScores[cIdx][qIdx] == v ? 'checked' : ''}></div>`
+                    ).join('');
             });
-        }
+            div.innerHTML = html + '</div>';
+            container.appendChild(div);
+        });
+        updateUI();
+    }
 
-        function updateRadar() {
-            liveRadar.data.datasets[0].data = userScores.map(cat => (cat.reduce((a,b)=>a+b,0)/50)*100);
-            liveRadar.update();
-        }
+    function updateUI() {
+        document.getElementById('step-info-top').innerText = `Progress: ${currentStep + 1}/5`;
+        document.getElementById('prev-btn').style.visibility = currentStep === 0 ? 'hidden' : 'visible';
+        document.getElementById('next-btn').innerText = currentStep === 4 ? "Submit Audit" : "Lanjut →";
+    }
 
-        async function submitData() {
-            if (!currentUser) return alert("Belum terautentikasi.");
-            const averages = userScores.map(cat => (cat.reduce((a,b)=>a+b,0)/50)*100);
-            const overall = averages.reduce((a,b)=>a+b,0)/5;
-            
-            try {
-                // Rule 1: Correct path
-                const path = `artifacts/${appId}/public/data/submissions`;
-                await db.collection(path).add({
-                    hotelName, 
-                    scores: averages, 
-                    overall, 
-                    timestamp: new Date().toISOString()
-                });
-                document.getElementById('success-hotel-name').innerText = hotelName;
-                switchView('success');
-            } catch (e) {
-                console.error("Error saving:", e);
-                alert("Gagal mengirim data. Error: " + e.message);
+    function moveStep(dir) {
+        if (dir === 1 && userScores[currentStep].includes(0)) {
+            alert("Mohon lengkapi semua poin sebelum melanjutkan.");
+            return;
+        }
+        currentStep += dir;
+        if (currentStep > 4) { submitData(); return; }
+        if (currentStep < 0) currentStep = 0;
+        renderSurvey();
+    }
+
+    function initRadar() {
+        if (liveRadar) liveRadar.destroy();
+        const ctx = document.getElementById('liveRadar');
+        liveRadar = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: CATEGORIES.map(c => c.title),
+                datasets: [{
+                    data: [0,0,0,0,0],
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79,70,229,0.1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#4f46e5'
+                }]
+            },
+            options: {
+                scales: { r: { min: 0, max: 100, ticks: { stepSize: 25, font: { size: 9 } }, pointLabels: { font: { size: 9, weight: 'bold' } } } },
+                plugins: { legend: { display: false } }
             }
+        });
+    }
+
+    function updateRadar() {
+        if (!liveRadar) return;
+        liveRadar.data.datasets[0].data = userScores.map(cat => (cat.reduce((a,b)=>a+b,0)/50)*100);
+        liveRadar.update();
+    }
+
+    // ============================================================
+    // SUBMIT DATA (USER — TULIS KE PATH PUBLIC)
+    // Data submission ditulis ke path PUBLIC agar bisa dibuat
+    // oleh anonymous user. Admin membaca dari PATH PRIVATE yang
+    // disalin oleh Cloud Function (atau Firestore Rules + write rule).
+    //
+    // OPSI SEDERHANA (tanpa Cloud Function):
+    //   User menulis ke PUBLIC, admin JUGA membaca dari PUBLIC
+    //   tapi Firestore Rules hanya mengizinkan admin auth membaca.
+    //   Lihat contoh Security Rules di bagian bawah file ini.
+    // ============================================================
+    async function submitData() {
+        const averages = userScores.map(cat => parseFloat(((cat.reduce((a,b)=>a+b,0)/50)*100).toFixed(1)));
+        const overall  = parseFloat((averages.reduce((a,b)=>a+b,0)/5).toFixed(1));
+
+        const nextBtn = document.getElementById('next-btn');
+        nextBtn.disabled = true;
+        nextBtn.innerText = "Menyimpan...";
+
+        try {
+            // Tulis ke path PUBLIC — bisa oleh anonymous user
+            await db.collection(PATH_PUBLIC).add({
+                hotelName,
+                scores: averages,
+                overall,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                submittedAt: new Date().toISOString()
+            });
+
+            document.getElementById('success-hotel-name').innerText = hotelName;
+            switchView('success');
+        } catch (e) {
+            console.error("Error saving:", e);
+            alert("Gagal mengirim data. Periksa koneksi internet dan konfigurasi Firebase.");
+        } finally {
+            nextBtn.disabled = false;
+        }
+    }
+
+    // ============================================================
+    // ADMIN — LOGIN / LOGOUT
+    // ============================================================
+    function openAdminLogin() {
+        document.getElementById('modal-admin-login').classList.remove('hidden');
+        document.getElementById('login-error').classList.add('hidden');
+        document.getElementById('admin-email').value    = '';
+        document.getElementById('admin-password').value = '';
+        setTimeout(() => document.getElementById('admin-email').focus(), 100);
+    }
+
+    function closeAdminLogin() {
+        document.getElementById('modal-admin-login').classList.add('hidden');
+    }
+
+    function togglePassword() {
+        const input = document.getElementById('admin-password');
+        input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    async function adminLogin() {
+        const email    = document.getElementById('admin-email').value.trim();
+        const password = document.getElementById('admin-password').value;
+        const errorDiv = document.getElementById('login-error');
+        const btn      = document.getElementById('login-btn');
+
+        errorDiv.classList.add('hidden');
+
+        // Validasi email whitelist SEBELUM hit Firebase
+        if (!ALLOWED_ADMIN_EMAILS.includes(email)) {
+            showLoginError("Email tidak terdaftar sebagai admin.");
+            return;
         }
 
-        function setupAdminListener() {
-            if (!currentUser) return;
-            
-            // Rule 1: Correct path
-            const path = `artifacts/${appId}/public/data/submissions`;
-            
-            // Rule 2: No complex queries (removed orderBy to prevent index errors)
-            db.collection(path).onSnapshot(snap => {
-                const tbody = document.getElementById('admin-table-body');
+        if (!email || !password) {
+            showLoginError("Email dan password harus diisi.");
+            return;
+        }
+
+        btn.disabled   = true;
+        btn.innerText  = "Memverifikasi...";
+
+        try {
+            await auth.signInWithEmailAndPassword(email, password);
+            // onAuthStateChanged akan otomatis tangani redirect ke admin view
+        } catch (e) {
+            let msg = "Login gagal. Periksa email dan password.";
+            if (e.code === 'auth/user-not-found')    msg = "Email tidak ditemukan di sistem.";
+            if (e.code === 'auth/wrong-password')     msg = "Password salah.";
+            if (e.code === 'auth/invalid-credential') msg = "Kredensial tidak valid.";
+            if (e.code === 'auth/too-many-requests')  msg = "Terlalu banyak percobaan. Coba lagi nanti.";
+            showLoginError(msg);
+        } finally {
+            btn.disabled  = false;
+            btn.innerText = "Masuk";
+        }
+    }
+
+    function showLoginError(msg) {
+        const errorDiv = document.getElementById('login-error');
+        errorDiv.textContent = msg;
+        errorDiv.classList.remove('hidden');
+        document.getElementById('login-card').classList.add('shake');
+        setTimeout(() => document.getElementById('login-card').classList.remove('shake'), 400);
+    }
+
+    async function adminLogout() {
+        if (adminUnsubscribe) { adminUnsubscribe(); adminUnsubscribe = null; }
+        await auth.signOut();
+        switchView('landing');
+    }
+
+    // ============================================================
+    // ADMIN — BACA DATA (PATH PUBLIC, tapi Firestore Rules
+    // hanya izinkan user yang authenticated & email match whitelist)
+    // ============================================================
+    function setupAdminListener() {
+        const user = auth.currentUser;
+        if (!user || !ALLOWED_ADMIN_EMAILS.includes(user.email)) {
+            // Jika somehow admin view terbuka tanpa auth — redirect
+            switchView('landing');
+            openAdminLogin();
+            return;
+        }
+
+        // Hentikan listener lama jika ada
+        if (adminUnsubscribe) adminUnsubscribe();
+
+        const tbody = document.getElementById('admin-table-body');
+        tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400 text-xs">Memuat data...</td></tr>`;
+
+        adminUnsubscribe = db.collection(PATH_PUBLIC)
+            .orderBy('overall', 'desc')
+            .limit(100)
+            .onSnapshot(snap => {
                 tbody.innerHTML = '';
                 document.getElementById('total-count').innerText = snap.size;
-                
-                const results = [];
-                snap.forEach(doc => results.push(doc.data()));
-                
-                // Manual Sort in JS to avoid "requires an index" error
-                results.sort((a, b) => b.overall - a.overall);
 
-                results.forEach(data => {
+                if (snap.empty) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400 text-xs italic">Belum ada data submission.</td></tr>`;
+                    document.getElementById('avg-score').innerText = '0%';
+                    document.getElementById('top-score').innerText = '0%';
+                    return;
+                }
+
+                let total = 0, top = 0;
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    total += d.overall;
+                    if (d.overall > top) top = d.overall;
+
+                    const date = d.timestamp ? d.timestamp.toDate().toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' }) : (d.submittedAt ? new Date(d.submittedAt).toLocaleDateString('id-ID', {day:'2-digit',month:'short',year:'numeric'}) : '—');
+                    const status = d.overall >= 70 ? ['Advanced', 'badge-advanced'] : d.overall >= 40 ? ['Standard', 'badge-standard'] : ['Basic', 'badge-basic'];
+
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td class="p-4 font-bold">${data.hotelName}</td><td class="p-4 font-black text-indigo-600">${Math.round(data.overall)}%</td><td class="p-4 text-xs">${data.overall > 70 ? '<span class="px-2 py-1 bg-green-100 text-green-700 rounded-full">Advanced</span>' : '<span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full">Standard</span>'}</td><td class="p-4 text-right"><button class="text-indigo-600 text-[10px] font-bold uppercase tracking-widest border border-indigo-100 px-3 py-1 rounded-lg">View</button></td>`;
+                    tr.className = 'hover:bg-slate-50 transition';
+                    tr.innerHTML = `
+                        <td class="p-4 font-bold">${escapeHtml(d.hotelName)}</td>
+                        <td class="p-4 font-black text-indigo-700">${Math.round(d.overall)}%</td>
+                        <td class="p-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${status[1]}">${status[0]}</span></td>
+                        <td class="p-4 text-slate-400 text-xs">${date}</td>
+                        <td class="p-4 text-right">
+                            <button onclick='openDetail(${JSON.stringify({hotelName: d.hotelName, scores: d.scores, overall: d.overall, date: date})})'
+                                class="text-indigo-600 text-xs font-bold hover:underline">Detail →</button>
+                        </td>
+                    `;
                     tbody.appendChild(tr);
                 });
+
+                document.getElementById('avg-score').innerText = Math.round(total / snap.size) + '%';
+                document.getElementById('top-score').innerText = Math.round(top) + '%';
+
             }, err => {
-                console.error("Admin Listener Error:", err);
-                document.getElementById('admin-table-body').innerHTML = `<tr><td colspan="4" class="p-10 text-center text-red-500 font-bold italic">Error: Missing or insufficient permissions. Pastikan Auth berhasil.</td></tr>`;
+                console.error("Listener Error:", err);
+                tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-red-500 font-bold text-xs">Error: ${err.message}</td></tr>`;
             });
+    }
+
+    // ============================================================
+    // MODAL DETAIL
+    // ============================================================
+    function openDetail(data) {
+        document.getElementById('detail-hotel-name').innerText = data.hotelName;
+        document.getElementById('detail-date').innerText       = data.date;
+
+        // Render skor per kategori
+        const scoresDiv = document.getElementById('detail-scores');
+        scoresDiv.innerHTML = '';
+        CATEGORIES.forEach((cat, i) => {
+            const score = data.scores ? Math.round(data.scores[i]) : 0;
+            const color = score >= 70 ? 'bg-emerald-500' : score >= 40 ? 'bg-amber-400' : 'bg-red-400';
+            scoresDiv.innerHTML += `
+                <div class="flex items-center gap-3">
+                    <span class="text-xs font-bold text-slate-600 w-36 shrink-0">${cat.title}</span>
+                    <div class="flex-1 bg-slate-100 rounded-full h-2">
+                        <div class="${color} h-2 rounded-full transition-all" style="width:${score}%"></div>
+                    </div>
+                    <span class="text-xs font-black text-slate-700 w-10 text-right">${score}%</span>
+                </div>
+            `;
+        });
+
+        // Radar chart
+        if (detailRadar) detailRadar.destroy();
+        const ctx = document.getElementById('detailRadar');
+        detailRadar = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: CATEGORIES.map(c => c.title),
+                datasets: [{
+                    data: data.scores || [0,0,0,0,0],
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79,70,229,0.15)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#4f46e5'
+                }]
+            },
+            options: {
+                scales: { r: { min: 0, max: 100, ticks: { stepSize: 25, font: { size: 9 } }, pointLabels: { font: { size: 9, weight: 'bold' } } } },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        document.getElementById('modal-detail').classList.remove('hidden');
+    }
+
+    function closeDetail() {
+        document.getElementById('modal-detail').classList.add('hidden');
+        if (detailRadar) { detailRadar.destroy(); detailRadar = null; }
+    }
+
+    // ============================================================
+    // UTILS
+    // ============================================================
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.appendChild(document.createTextNode(str));
+        return div.innerHTML;
+    }
+
+    // Tutup modal jika klik di luar card
+    document.getElementById('modal-admin-login').addEventListener('click', function(e) {
+        if (e.target === this) closeAdminLogin();
+    });
+    document.getElementById('modal-detail').addEventListener('click', function(e) {
+        if (e.target === this) closeDetail();
+    });
+
+    window.onload = initApp;
+    </script>
+
+    <!--
+    ================================================================
+    FIRESTORE SECURITY RULES (salin ke Firebase Console)
+    ================================================================
+    Pergi ke: Firebase Console → Firestore → Rules
+
+    rules_version = '2';
+    service cloud.firestore {
+      match /databases/{database}/documents {
+
+        // PATH PUBLIC: siapapun bisa menulis (untuk submit audit)
+        // Hanya admin (authenticated & email verified) yang bisa membaca
+        match /artifacts/audit-digital-jhl-v2/public/submissions/{docId} {
+          allow write: if true;
+          allow read: if request.auth != null
+                      && request.auth.token.email in [
+                            'admin@jhl.com',
+                            'digital@jhlcollections.com'
+                         ];
         }
 
-        window.onload = initApp;
-    </script>
+        // PATH PRIVATE: hanya admin yang bisa baca & tulis
+        match /artifacts/audit-digital-jhl-v2/private/{document=**} {
+          allow read, write: if request.auth != null
+                             && request.auth.token.email in [
+                                  'admin@jhl.com',
+                                  'digital@jhlcollections.com'
+                               ];
+        }
+
+        // Blokir semua akses lain
+        match /{document=**} {
+          allow read, write: if false;
+        }
+      }
+    }
+    ================================================================
+    CARA SETUP AKUN ADMIN DI FIREBASE AUTH:
+    1. Firebase Console → Authentication → Users → Add User
+    2. Masukkan email & password admin
+    3. Tambahkan email yang sama ke ALLOWED_ADMIN_EMAILS di atas
+    ================================================================
+    -->
 </body>
 </html>
