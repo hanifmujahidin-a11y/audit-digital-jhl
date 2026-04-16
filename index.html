@@ -259,14 +259,31 @@
     // ⚠️  GANTI DENGAN CONFIG DARI FIREBASE CONSOLE ANDA
     // Firebase Console → Project Settings → Your apps → SDK setup
     // ============================================================
-    const firebaseConfig = {
-        apiKey: "GANTI_DENGAN_API_KEY_ANDA",
-        authDomain: "jhl-audit.firebaseapp.com",
-        projectId: "jhl-audit",
-        storageBucket: "jhl-audit.appspot.com",
-        messagingSenderId: "GANTI_DENGAN_SENDER_ID_ANDA",
-        appId: "GANTI_DENGAN_APP_ID_ANDA"
-    };
+    // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDq8cuvGJJrWD9_R7NoShQTRWhrj0-CNVc",
+  authDomain: "audit-digital-jhl-v2.firebaseapp.com",
+  projectId: "audit-digital-jhl-v2",
+  storageBucket: "audit-digital-jhl-v2.firebasestorage.app",
+  messagingSenderId: "839003631596",
+  appId: "1:839003631596:web:64113b8bd1a38bf5d31ac9"
+};
+
+// Initialize Firebase
+//const app = initializeApp(firebaseConfig);
+//    const firebaseConfig = {
+//        apiKey: "GANTI_DENGAN_API_KEY_ANDA",
+//        authDomain: "jhl-audit.firebaseapp.com",
+ //       projectId: "jhl-audit",
+ //       storageBucket: "jhl-audit.appspot.com",
+ //       messagingSenderId: "GANTI_DENGAN_SENDER_ID_ANDA",
+  //      appId: "GANTI_DENGAN_APP_ID_ANDA"
+//    };
 
     // ============================================================
     // KONFIGURASI ADMIN
