@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JHL Collections - Digital Maturity Audit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
+        .survey-grid {
+            display: grid;
+            grid-template-columns: 3fr repeat(5, 1fr);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .grid-cell { padding: 12px; border: 0.5px solid #f1f5f9; display: flex; align-items: center; justify-content: center; }
+        .grid-label { justify-content: flex-start; font-size: 0.875rem; color: #334155; }
+        .grid-header { background: #0f172a; color: white; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; }
+        input[type="radio"] { width: 1.2rem; height: 1.2rem; cursor: pointer; accent-color: #4f46e5; }
+        .step-content { display: none; }
+        .step-content.active { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <!-- Loading Screen -->
+    <div id="loader" class="fixed inset-0 bg-[#0f172a] z-[100] flex flex-col items-center justify-center text-white transition-opacity duration-500">
+        <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-[10px] font-bold tracking-widest uppercase">Menyiapkan Sistem Audit...</p>
+    </div>
+
+    <!-- View: Landing -->
+    <div id="view-landing" class="min-h-screen flex items-center justify-center p-6 bg-[#0f172a] text-white">
+        <div class="max-w-md w-full text-center space-y-8">
+            <div class="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center mx-auto shadow-2xl rotate-3">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+            </div>
+            <div>
+                <h1 class="text-4xl font-black tracking-tighter uppercase leading-none">Hotel Audit</h1>
+                <p class="text-indigo-400 font-bold text-sm tracking-[0.2em] mt-2 italic">Digital Maturity Analysis</p>
+            </div>
+            <div class="space-y-4 pt-4 text-left">
+                <label class="text-xs font-bold text-slate-500 uppercase ml-1">Nama Unit/Hotel</label>
+                <input type="text" id="hotel-name-input" placeholder="Contoh: JHL Solitaire Gading Serpong" class="w-full p-4 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner">
+                <button onclick="startSurvey()" class="w-full bg-indigo-600 p-4 rounded-xl font-bold uppercase tracking-widest hover:bg-indigo-700 transition shadow-lg active:scale-95">Mulai Audit Baru</button>
+                <div class="pt-10 text-center">
+                    <button onclick="switchView('admin')" class="text-[10px] text-slate-500 hover:text-indigo-400 uppercase font-bold tracking-[0.2em] transition">Dashboard Admin</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View: Survey -->
+    <div id="view-survey" class="hidden min-h-screen">
+        <header class="bg-[#0f172a] text-white p-4 sticky top-0 z-50 flex justify-between items-center border-b border-slate-800">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
+                <span id="display-hotel-name" class="font-bold uppercase tracking-tight text-xs">JHL Unit</span>
+            </div>
+            <div id="step-info-top" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Progress: 1/5</div>
+        </header>
+
+        <div class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-8 space-y-6">
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden" id="survey-container">
+                    <!-- Questions generated here -->
+                </div>
+                <div class="flex justify-between items-center bg-white p-6 rounded-2xl border shadow-sm">
+                    <button id="prev-btn" onclick="moveStep(-1)" class="px-6 py-3 font-bold text-slate-400 hover:text-slate-800 text-sm uppercase">Kembali</button>
+                    <button id="next-btn" onclick="moveStep(1)" class="px-10 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-md transition uppercase text-sm tracking-widest">Lanjut</button>
+                </div>
+            </div>
+            <div class="lg:col-span-4 space-y-6">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 sticky top-24">
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 text-center">Visualisasi Radar</h3>
+                    <div class="h-64"><canvas id="liveRadar"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View: Success -->
+    <div id="view-success" class="hidden min-h-screen flex items-center justify-center p-6 bg-slate-900 text-white text-center">
+        <div class="max-w-md space-y-6">
+            <div class="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-2xl scale-110">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h1 class="text-3xl font-black uppercase tracking-tighter">Data Tersinkronisasi</h1>
+            <p class="text-slate-400 text-sm">Audit digital untuk <span id="success-hotel-name" class="text-white font-bold italic"></span> telah berhasil disimpan di cloud.</p>
+            <button onclick="location.reload()" class="bg-white text-indigo-950 px-10 py-4 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-indigo-50 transition">Selesai</button>
+        </div>
+    </div>
+
+    <!-- View: Admin -->
+    <div id="view-admin" class="hidden min-h-screen bg-slate-50">
+        <header class="bg-indigo-950 text-white p-6 flex justify-between items-center">
+            <h2 class="font-black uppercase tracking-tighter text-xl">Central Admin Dashboard</h2>
+            <button onclick="switchView('landing')" class="text-xs font-bold uppercase opacity-60 hover:opacity-100 transition">Keluar</button>
+        </header>
+        <div class="max-w-6xl mx-auto p-6 space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-3xl border shadow-sm col-span-2">
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase mb-4 text-center">Perbandingan Skor Antar Unit</h4>
+                    <div class="h-64"><canvas id="adminBarChart"></canvas></div>
+                </div>
+                <div class="bg-indigo-600 p-6 rounded-3xl text-white flex flex-col justify-center items-center">
+                    <span id="total-count" class="text-6xl font-black">0</span>
+                    <p class="text-xs uppercase font-bold tracking-widest opacity-70">Unit Terdata</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-400 border-b">
+                        <tr>
+                            <th class="p-4">Unit Hotel</th>
+                            <th class="p-4">Overall Score</th>
+                            <th class="p-4">Status</th>
+                            <th class="p-4 text-right">Tanggal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body" class="divide-y text-sm">
+                        <tr><td colspan="4" class="p-10 text-center text-slate-400 italic">Memuat database...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Pertanyaan (Lengkap sesuai desain sebelumnya)
+        const CATEGORIES = [
+            { title: "Data & Tracking", questions: ["Setup GTM (Global)","Integrasi GA4 E-commerce","Meta Pixel & CAPI","Form Submission Tracking","WhatsApp Event Tracking","E-comm Checkout Tracking","Server-Side GTM Setup","Cross-Domain Tracking","Audit Kebocoran Data","Data Validation Routine"] },
+            { title: "Performance Ads", questions: ["Google Hotel Ads (GHA)","Brand Protection Ads","Dynamic Creative (DCO)","Sync Audience PMS","Retargeting Abandoned Booking","Share of Voice (Ads)","tROAS Optimization","A/B Testing Visual","Advantage+ Campaigns","Budget vs Demand Sync"] },
+            { title: "SEO & Content", questions: ["GBP (Maps) Optimization","Core Web Vitals Score","Content Strategy Lokal","Schema Markup Implementation","Quality Backlinks Profile","Image & Video Optimization","Internal Linking Web","Search Console Monitoring","Meta Titles Optimization","UI/UX Booking Engine"] },
+            { title: "Revenue Sync", questions: ["Rate Parity Monitoring","Demand Forecasting Tools","Members-only Web Promo","Sync Website vs OTA","RGI Strategy Digital","Digital Upselling Tool","Online Reputation Impact","Direct vs OTA Mix","Geo-Targeting Pricing","Digital Price Audit"] },
+            { title: "Strategy & Mgmt", questions: ["Content Pillar Plan","Vertical Video Strategy","CRM/Email Automation","Chatbot/DM Automation","Unified Monthly Report","Heatmap Analysis","Influencer ROI Tracking","Asset Management (DAM)","Social Crisis Protocol","Admin Efficiency Tools"] }
+        ];
+
+        let currentStep = 0;
+        let hotelName = "";
+        let userScores = Array(5).fill(0).map(() => Array(10).fill(0));
+        let liveRadar = null;
+        let adminBar = null;
+
+        // Firebase Setup - Standalone Implementation
+        let db, auth;
+        const appId = "jhl-maturity-audit-v1";
+        
+        // Cek apakah variabel config ada, jika tidak gunakan default kosong (Standalone fallback)
+        const rawConfig = typeof __firebase_config !== 'undefined' ? __firebase_config : '{"apiKey":"","authDomain":"","projectId":"","storageBucket":"","messagingSenderId":"","appId":""}';
+        const config = JSON.parse(rawConfig);
+
+        function initFirebase() {
+            try {
+                if (config.projectId) {
+                    firebase.initializeApp(config);
+                    db = firebase.firestore();
+                    auth = firebase.auth();
+                    
+                    // Auth secara anonim jika di browser
+                    auth.signInAnonymously().catch(e => console.log("Silent auth failed, continuing..."));
+                }
+                
+                // Sembunyikan loader setelah 2 detik
+                setTimeout(() => {
+                    document.getElementById('loader').classList.add('opacity-0');
+                    setTimeout(() => document.getElementById('loader').classList.add('hidden'), 500);
+                }, 1500);
+            } catch (e) {
+                console.error("Firebase init failed:", e);
+                document.getElementById('loader').classList.add('hidden');
+            }
+        }
+
+        function switchView(viewId) {
+            ['landing', 'survey', 'success', 'admin'].forEach(v => document.getElementById('view-' + v).classList.add('hidden'));
+            document.getElementById('view-' + viewId).classList.remove('hidden');
+            if(viewId === 'admin') setupAdminListener();
+        }
+
+        function startSurvey() {
+            hotelName = document.getElementById('hotel-name-input').value.trim();
+            if(!hotelName) return alert("Silakan masukkan nama Hotel/Unit.");
+            document.getElementById('display-hotel-name').innerText = hotelName;
+            renderSurvey();
+            initRadar();
+            switchView('survey');
+        }
+
+        function renderSurvey() {
+            const container = document.getElementById('survey-container');
+            container.innerHTML = '';
+            CATEGORIES.forEach((cat, cIdx) => {
+                const div = document.createElement('div');
+                div.className = `step-content ${cIdx === currentStep ? 'active' : ''}`;
+                div.id = `step-${cIdx}`;
+                
+                let html = `
+                    <div class="bg-slate-50 p-6 border-b">
+                        <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Kategori ${cIdx+1}/5</p>
+                        <h2 class="text-xl font-black text-slate-800 uppercase">${cat.title}</h2>
+                    </div>
+                    <div class="survey-grid min-w-[700px]">
+                        <div class="grid-cell grid-header grid-label">Indikator Maturity</div>
+                        ${[1,2,3,4,5].map(i => `<div class="grid-cell grid-header">${i}</div>`).join('')}
+                `;
+
+                cat.questions.forEach((q, qIdx) => {
+                    html += `
+                        <div class="grid-cell grid-label font-bold text-slate-600">${q}</div>
+                        ${[1,2,3,4,5].map(v => `
+                            <div class="grid-cell">
+                                <input type="radio" name="q_${cIdx}_${qIdx}" value="${v}" 
+                                ${userScores[cIdx][qIdx] == v ? 'checked' : ''} 
+                                onchange="userScores[${cIdx}][${qIdx}]=${v}; updateRadar();">
+                            </div>
+                        `).join('')}
+                    `;
+                });
+
+                html += `</div>`;
+                div.innerHTML = html;
+                container.appendChild(div);
+            });
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('step-info-top').innerText = `Progress: ${currentStep + 1}/5`;
+            document.getElementById('prev-btn').style.visibility = currentStep === 0 ? 'hidden' : 'visible';
+            document.getElementById('next-btn').innerText = currentStep === 4 ? "Submit Data" : "Lanjut";
+        }
+
+        function moveStep(dir) {
+            if(dir === 1) {
+                const filled = userScores[currentStep].filter(s => s > 0).length;
+                if(filled < 10) return alert("Mohon lengkapi semua poin (10 poin) di bagian ini.");
+            }
+            
+            currentStep += dir;
+            if(currentStep > 4) return submitAudit();
+            
+            document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(`step-${currentStep}`).classList.add('active');
+            updateUI();
+            window.scrollTo(0,0);
+        }
+
+        function initRadar() {
+            const ctx = document.getElementById('liveRadar').getContext('2d');
+            if(liveRadar) liveRadar.destroy();
+            liveRadar = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: CATEGORIES.map(c => c.title),
+                    datasets: [{
+                        data: [0,0,0,0,0],
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        borderColor: '#4f46e5',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#4f46e5'
+                    }]
+                },
+                options: {
+                    scales: { r: { min: 0, max: 100, ticks: { display: false } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function updateRadar() {
+            const totals = userScores.map(cat => (cat.reduce((a,b)=>a+b, 0) / 50) * 100);
+            liveRadar.data.datasets[0].data = totals;
+            liveRadar.update();
+        }
+
+        async function submitAudit() {
+            const btn = document.getElementById('next-btn');
+            btn.disabled = true;
+            btn.innerText = "Syncing...";
+
+            const averages = userScores.map(cat => (cat.reduce((a,b)=>a+b, 0) / 50) * 100);
+            const overall = averages.reduce((a,b)=>a+b,0) / 5;
+
+            const payload = {
+                hotelName,
+                averages,
+                overall,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp() || new Date().toISOString()
+            };
+
+            try {
+                if (db) {
+                    await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('submissions').add(payload);
+                }
+                document.getElementById('success-hotel-name').innerText = hotelName;
+                switchView('success');
+            } catch (e) {
+                console.error("Submit failed:", e);
+                // Fallback jika DB gagal (offline mode)
+                alert("Data berhasil dihitung, namun koneksi cloud gagal. Silakan screenshot hasil radar Anda.");
+                switchView('success');
+            }
+        }
+
+        function setupAdminListener() {
+            if(!db) return;
+            db.collection('artifacts').doc(appId).collection('public').doc('data').collection('submissions')
+                .onSnapshot(snap => {
+                    const data = snap.docs.map(doc => doc.data());
+                    updateAdminDashboard(data);
+                });
+        }
+
+        function updateAdminDashboard(data) {
+            const tbody = document.getElementById('admin-table-body');
+            const countEl = document.getElementById('total-count');
+            tbody.innerHTML = '';
+            countEl.innerText = data.length;
+
+            data.sort((a,b) => (b.overall || 0) - (a.overall || 0));
+
+            data.forEach(item => {
+                const score = Math.round(item.overall);
+                const status = score > 75 ? 'Advanced' : (score > 45 ? 'Standard' : 'Initial');
+                const color = score > 75 ? 'text-emerald-500' : (score > 45 ? 'text-amber-500' : 'text-rose-500');
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-4 font-bold uppercase text-xs">${item.hotelName}</td>
+                    <td class="p-4 font-black text-lg ${color}">${score}%</td>
+                    <td class="p-4"><span class="px-2 py-1 rounded bg-slate-100 text-[9px] font-black uppercase ${color}">${status}</span></td>
+                    <td class="p-4 text-right text-slate-400 text-[10px]">Recent</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Update Admin Chart
+            const ctx = document.getElementById('adminBarChart').getContext('2d');
+            if(adminBar) adminBar.destroy();
+            adminBar = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.hotelName),
+                    datasets: [{ label: 'Score %', data: data.map(d => d.overall), backgroundColor: '#4f46e5', borderRadius: 5 }]
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
+        window.onload = initFirebase;
+    </script>
+</body>
+</html>
