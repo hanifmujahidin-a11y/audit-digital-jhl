@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JHL Corporate - Admin Dashboard</title>
+    <title>Corporate Admin - JHL Collections</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -11,131 +11,168 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
     </style>
 </head>
-<body class="bg-slate-100 min-h-screen">
+<body class="bg-[#0f172a] min-h-screen">
 
-    <header class="bg-[#0f172a] text-white p-6 shadow-xl sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
+    <div id="auth-view" class="hidden min-h-screen flex items-center justify-center p-6">
+        <div class="max-w-md w-full bg-white rounded-[2.5rem] p-10 shadow-2xl text-center space-y-8">
             <div>
-                <h1 class="text-xl font-black uppercase tracking-tighter">Corporate Admin</h1>
-                <p class="text-[10px] text-indigo-400 font-bold tracking-[0.3em]">DIGITAL MATURITY HUB</p>
+                <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg rotate-3">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </div>
+                <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tighter">Admin Portal</h1>
+                <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">JHL Digital Maturity Hub</p>
             </div>
-            <button onclick="window.location.href='index.html'" class="text-[10px] font-bold uppercase bg-slate-800 px-4 py-2 rounded-lg hover:bg-slate-700 transition">Portal Audit</button>
+            
+            <div class="space-y-4">
+                <div class="text-left">
+                    <label class="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Email Address</label>
+                    <input type="email" id="admin-email" placeholder="corporate@jhl.com" class="w-full mt-1 p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition">
+                </div>
+                <div class="text-left">
+                    <label class="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Security Password</label>
+                    <input type="password" id="admin-pw" placeholder="••••••••" class="w-full mt-1 p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition">
+                </div>
+                <button onclick="loginAdmin()" id="login-btn" class="w-full bg-[#0f172a] text-white p-4 rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-600 transition shadow-xl">Sign In</button>
+            </div>
+            <p class="text-[10px] text-slate-300">Authorized Personnel Only</p>
         </div>
-    </header>
+    </div>
 
-    <main class="max-w-7xl mx-auto p-6 space-y-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-indigo-600 p-8 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
-                <p class="text-xs font-bold uppercase opacity-70 tracking-widest mb-1">Total Unit Terdata</p>
-                <h3 id="total-count" class="text-6xl font-black italic">0</h3>
-                <div class="absolute -right-4 -bottom-4 opacity-10">
-                    <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+    <div id="dashboard-view" class="hidden">
+        <header class="bg-[#0f172a] text-white p-6 border-b border-slate-800 sticky top-0 z-50 shadow-xl">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <div>
+                    <h1 class="text-xl font-black uppercase tracking-tighter italic">Corporate Admin</h1>
+                    <p class="text-[10px] text-indigo-400 font-bold tracking-[0.3em]">LIVE DATA HUB</p>
+                </div>
+                <button onclick="logout()" class="text-[10px] font-bold uppercase bg-red-500/10 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-white transition">Logout</button>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto p-6 space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-indigo-600 p-8 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden">
+                    <p class="text-xs font-bold uppercase opacity-70 tracking-widest mb-1">Total Unit Terdata</p>
+                    <h3 id="total-count" class="text-6xl font-black italic">0</h3>
+                    <div class="absolute -right-4 -bottom-4 opacity-10">
+                        <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden">
-            <div class="p-6 border-b flex justify-between items-center">
-                <h4 class="font-black uppercase text-sm text-slate-500 tracking-widest">Daftar Hasil Audit Hotel</h4>
-                <button onclick="loadData()" class="text-xs font-bold text-indigo-600 uppercase">Refresh Data</button>
+            <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-8 border-b flex justify-between items-center">
+                    <h4 class="font-black uppercase text-sm text-slate-500 tracking-widest italic">Daftar Hasil Audit Hotel</h4>
+                    <button onclick="loadData()" class="text-xs font-bold text-indigo-600 uppercase">Sync Data</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-400 tracking-widest">
+                            <tr>
+                                <th class="p-8">Unit Hotel</th>
+                                <th class="p-8">Avg Score</th>
+                                <th class="p-8">Status</th>
+                                <th class="p-8">Waktu Input</th>
+                                <th class="p-8 text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-table-body" class="divide-y divide-slate-100 text-sm font-semibold">
+                            </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-400">
-                        <tr>
-                            <th class="p-6">Unit Hotel</th>
-                            <th class="p-6">Average Score</th>
-                            <th class="p-6">Maturity Status</th>
-                            <th class="p-6">Waktu Input</th>
-                            <th class="p-6 text-right">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-table-body" class="divide-y divide-slate-100 text-sm">
-                        </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
+        </main>
+    </div>
 
     <script>
-        // CONFIG FIREBASE (Sama dengan index.html anda)
+        // CONFIG FIREBASE (WAJIB ISI API KEY ANDA)
         const firebaseConfig = {
             apiKey: "AIzaSyDq8cuvGJJrWD9_R7NoShQTRWhrj0-CNVc",
-            authDomain: "audit-digital-jhl-v2.firebaseapp.com",
+            authDomain: "audit-digital-jhl-v2.firebaseapp.com"",
             projectId: "audit-digital-jhl-v2",
             storageBucket: "audit-digital-jhl-v2.firebasestorage.app",
             messagingSenderId: "839003631596",
             appId: "1:839003631596:web:64113b8bd1a38bf5d31ac9"
         };
 
-        const appId = "audit-digital-jhl-v2";
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        async function initAdmin() {
+        // 1. Fungsi Inisialisasi & Cek Status Login
+        function initAdmin() {
             firebase.auth().onAuthStateChanged(user => {
+                console.log("Status User:", user ? "LoggedIn" : "LoggedOut");
                 if (user && !user.isAnonymous) {
-                    // Jika sudah login sebagai Admin, tampilkan data
                     document.getElementById('auth-view').classList.add('hidden');
                     document.getElementById('dashboard-view').classList.remove('hidden');
                     loadData();
                 } else {
-                    // Jika belum login atau anonim, tampilkan form login
                     document.getElementById('auth-view').classList.remove('hidden');
                     document.getElementById('dashboard-view').classList.add('hidden');
                 }
             });
         }
 
-// 2. Tambahkan fungsi Login ini:
+        // 2. Fungsi Proses Login
         async function loginAdmin() {
             const email = document.getElementById('admin-email').value;
             const pw = document.getElementById('admin-pw').value;
+            const btn = document.getElementById('login-btn');
+
+            if(!email || !pw) return alert("Isi email dan password!");
             
+            btn.innerText = "CHECKING...";
+            btn.disabled = true;
+
             try {
                 await firebase.auth().signInWithEmailAndPassword(email, pw);
-                alert("Login Berhasil!");
             } catch (e) {
-                alert("Akses Ditolak: Periksa Email/Password Anda.");
+                console.error(e);
+                alert("Akses Ditolak: Periksa Email/Password.");
+                btn.innerText = "SIGN IN";
+                btn.disabled = false;
             }
         }
 
+        // 3. Fungsi Load Data dari Firestore
         function loadData() {
-            const path = `submissions`; 
-    
-            db.collection(path).orderBy('timestamp', 'desc').onSnapshot(snap => {
+            db.collection('submissions').orderBy('timestamp', 'desc').onSnapshot(snap => {
                 const tbody = document.getElementById('admin-table-body');
                 tbody.innerHTML = '';
                 document.getElementById('total-count').innerText = snap.size;
-        
+
                 snap.forEach(doc => {
                     const data = doc.data();
                     const date = data.timestamp ? new Date(data.timestamp).toLocaleDateString('id-ID', {
                         day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
                     }) : '-';
-        
+
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition";
                     tr.innerHTML = `
-                        <td class="p-6 font-bold text-slate-800">${data.hotelName || 'Tanpa Nama'}</td>
-                        <td class="p-6 font-black text-indigo-600 text-lg">${Math.round(data.overall || 0)}%</td>
-                        <td class="p-6">
-                            <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${data.overall > 70 ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}">
+                        <td class="p-8 font-black text-slate-800 italic">${data.hotelName || 'Unit Unknown'}</td>
+                        <td class="p-8 font-black text-indigo-600 text-lg">${Math.round(data.overall || 0)}%</td>
+                        <td class="p-8">
+                            <span class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${data.overall > 70 ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}">
                                 ${data.overall > 70 ? 'Advanced' : 'Standard'}
                             </span>
                         </td>
-                        <td class="p-6 text-slate-400 text-xs">${date}</td>
-                        <td class="p-6 text-right">
-                            <button class="bg-slate-800 text-white text-[10px] font-black uppercase px-4 py-2 rounded-lg hover:bg-indigo-600 transition">Detail</button>
+                        <td class="p-8 text-slate-400 text-xs">${date}</td>
+                        <td class="p-8 text-right">
+                            <button class="bg-slate-800 text-white text-[10px] font-black uppercase px-6 py-3 rounded-2xl hover:bg-indigo-600 transition shadow-lg">Detail</button>
                         </td>
                     `;
                     tbody.appendChild(tr);
                 });
-            }, err => {
-                console.error("Gagal ambil data:", err);
             });
+        }
+
+        // 4. Fungsi Logout
+        function logout() {
+            firebase.auth().signOut();
         }
 
         window.onload = initAdmin;
