@@ -18,52 +18,39 @@
     <div id="auth-view" class="min-h-screen flex items-center justify-center p-6">
         <div class="max-w-md w-full bg-white rounded-[2.5rem] p-10 shadow-2xl text-center space-y-8">
             <div>
-                <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg rotate-3">
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                </div>
-                <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tighter">Admin Portal</h1>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Authorized Personnel Only</p>
+                <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tighter italic">Admin Portal</h1>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">JHL Digital Maturity Hub</p>
             </div>
             <div class="space-y-4 text-left">
-                <div>
-                    <label class="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Email Address</label>
-                    <input type="email" id="admin-email" placeholder="corporate@jhl.com" class="w-full mt-1 p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition">
-                </div>
-                <div>
-                    <label class="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Security Password</label>
-                    <input type="password" id="admin-pw" placeholder="••••••••" class="w-full mt-1 p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition">
-                </div>
+                <input type="email" id="admin-email" placeholder="Email Corporate" class="w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition">
+                <input type="password" id="admin-pw" placeholder="Password" class="w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition">
                 <button onclick="loginAdmin()" id="login-btn" class="w-full bg-[#0f172a] text-white p-4 rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-600 transition shadow-xl mt-4">Sign In</button>
             </div>
         </div>
     </div>
 
     <div id="dashboard-view" class="hidden">
-        <header class="bg-[#0f172a] text-white p-6 border-b border-slate-800 sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto flex justify-between items-center">
-                <div>
-                    <h1 class="text-xl font-black uppercase tracking-tighter italic">Corporate Admin</h1>
-                    <p class="text-[10px] text-indigo-400 font-bold tracking-[0.3em]">JHL DIGITAL HUB</p>
-                </div>
-                <button onclick="logout()" class="text-[10px] font-bold uppercase bg-red-500/10 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-white transition shadow-sm">Logout</button>
+        <header class="bg-[#0f172a] text-white p-6 border-b border-slate-800 sticky top-0 z-50 flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-black uppercase tracking-tighter italic">Corporate Admin</h1>
+                <p class="text-[10px] text-indigo-400 font-bold tracking-[0.3em]">REPORTS CENTER</p>
             </div>
+            <button onclick="logout()" class="text-[10px] font-bold uppercase bg-red-500/10 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-white transition">Logout</button>
         </header>
 
         <main class="max-w-7xl mx-auto p-6 space-y-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-indigo-600 p-8 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden">
-                    <p class="text-xs font-bold uppercase opacity-70 tracking-widest mb-1">Total Unit Terdata</p>
-                    <h3 id="total-count" class="text-6xl font-black italic">0</h3>
-                </div>
+            <div class="bg-indigo-600 p-8 rounded-[2.5rem] text-white shadow-xl w-64 relative overflow-hidden">
+                <p class="text-xs font-bold uppercase opacity-70 tracking-widest mb-1">Total Unit</p>
+                <h3 id="total-count" class="text-6xl font-black italic">0</h3>
             </div>
 
             <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden">
                 <div class="p-8 border-b flex justify-between items-center">
-                    <h4 class="font-black uppercase text-sm text-slate-500 tracking-widest italic tracking-wider">Daftar Hasil Audit Hotel</h4>
-                    <button onclick="loadData()" class="text-xs font-bold text-indigo-600 uppercase">Sync Data</button>
+                    <h4 class="font-black uppercase text-sm text-slate-500 tracking-widest italic">Daftar Hasil Audit Hotel</h4>
+                    <button onclick="loadData()" class="text-xs font-bold text-indigo-600 uppercase">Refresh Data</button>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                    <table class="w-full text-left">
                         <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-400 tracking-widest">
                             <tr>
                                 <th class="p-8">Unit Hotel</th>
@@ -73,16 +60,29 @@
                                 <th class="p-8 text-right">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="admin-table-body" class="divide-y divide-slate-100 text-sm font-semibold italic">
-                            </tbody>
+                        <tbody id="admin-table-body" class="divide-y divide-slate-100 text-sm font-semibold italic"></tbody>
                     </table>
                 </div>
             </div>
         </main>
     </div>
 
+    <div id="detail-modal" class="hidden fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-[2.5rem] overflow-hidden shadow-2xl">
+            <div class="p-8 border-b flex justify-between items-center bg-slate-50">
+                <div>
+                    <h2 id="modal-hotel-name" class="text-2xl font-black italic uppercase text-slate-800">Hotel Name</h2>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Digital Maturity Breakdown</p>
+                </div>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 transition font-black text-2xl">&times;</button>
+            </div>
+            <div id="modal-scores-list" class="p-8 space-y-4">
+                </div>
+        </div>
+    </div>
+
     <script>
-        // ISI CONFIG FIREBASE ANDA DI SINI
+        // CONFIG FIREBASE (WAJIB ISI!)
         const firebaseConfig = {
             apiKey: "AIzaSyDq8cuvGJJrWD9_R7NoShQTRWhrj0-CNVc", 
             authDomain: "audit-digital-jhl-v2.firebaseapp.com",
@@ -95,6 +95,7 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        // 1. Cek Status Login
         function initAdmin() {
             firebase.auth().onAuthStateChanged(user => {
                 const authView = document.getElementById('auth-view');
@@ -110,49 +111,83 @@
             });
         }
 
+        // 2. Fungsi Login
         async function loginAdmin() {
             const email = document.getElementById('admin-email').value;
             const pw = document.getElementById('admin-pw').value;
-            const btn = document.getElementById('login-btn');
-            if(!email || !pw) return alert("Wajib isi Email & Password!");
-            btn.innerText = "CHECKING...";
-            btn.disabled = true;
             try {
                 await firebase.auth().signInWithEmailAndPassword(email, pw);
             } catch (e) {
-                alert("Akses Ditolak!");
-                btn.innerText = "SIGN IN";
-                btn.disabled = false;
+                alert("Login Gagal! Periksa kembali email dan password.");
             }
         }
 
+        // 3. Load Data ke Tabel
         function loadData() {
             db.collection('submissions').orderBy('timestamp', 'desc').onSnapshot(snap => {
                 const tbody = document.getElementById('admin-table-body');
                 tbody.innerHTML = '';
                 document.getElementById('total-count').innerText = snap.size;
+
                 snap.forEach(doc => {
                     const data = doc.data();
-                    const date = data.timestamp ? new Date(data.timestamp).toLocaleString('id-ID') : '-';
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition";
+                    // Tombol Detail mengirimkan string JSON data
                     tr.innerHTML = `
-                        <td class="p-8 font-black text-slate-800 italic">${data.hotelName || 'Unit'}</td>
+                        <td class="p-8 font-black text-slate-800 uppercase italic">${data.hotelName || 'Unit'}</td>
                         <td class="p-8 font-black text-indigo-600 text-lg">${Math.round(data.overall || 0)}%</td>
                         <td class="p-8">
                             <span class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${data.overall > 70 ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}">
                                 ${data.overall > 70 ? 'Advanced' : 'Standard'}
                             </span>
                         </td>
-                        <td class="p-8 text-slate-400 text-xs font-normal">${date}</td>
-                        <td class="p-8 text-right"><button class="bg-slate-800 text-white text-[10px] font-black uppercase px-6 py-3 rounded-2xl">Detail</button></td>
+                        <td class="p-8 text-slate-400 text-xs">${data.timestamp ? new Date(data.timestamp).toLocaleDateString('id-ID') : '-'}</td>
+                        <td class="p-8 text-right">
+                            <button onclick='showDetail(${JSON.stringify(data)})' class="bg-slate-800 text-white text-[10px] font-black uppercase px-6 py-3 rounded-2xl hover:bg-indigo-600 transition">Detail</button>
+                        </td>
                     `;
                     tbody.appendChild(tr);
                 });
             });
         }
 
-        function logout() { firebase.auth().signOut(); }
+        // 4. Fungsi Menampilkan Detail Modal
+        function showDetail(data) {
+            const categories = [
+                "Infrastructure & Connectivity",
+                "Business Applications",
+                "Data & Security",
+                "Human Resources",
+                "Digital Strategy"
+            ];
+            
+            document.getElementById('modal-hotel-name').innerText = data.hotelName;
+            const list = document.getElementById('modal-scores-list');
+            list.innerHTML = '';
+
+            // Map scores dari Firestore array
+            data.scores.forEach((score, index) => {
+                const div = document.createElement('div');
+                div.className = "flex justify-between items-center p-4 bg-slate-50 rounded-2xl";
+                div.innerHTML = `
+                    <span class="text-xs font-bold uppercase text-slate-500">${categories[index]}</span>
+                    <span class="font-black text-indigo-600">${score}%</span>
+                `;
+                list.appendChild(div);
+            });
+
+            document.getElementById('detail-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('detail-modal').classList.add('hidden');
+        }
+
+        function logout() {
+            firebase.auth().signOut();
+        }
+
         window.onload = initAdmin;
     </script>
 </body>
