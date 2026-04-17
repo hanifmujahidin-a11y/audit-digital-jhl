@@ -18,6 +18,19 @@
 
     <div id="auth-view" class="hidden min-h-screen flex items-center justify-center p-6">
         <div class="max-w-md w-full bg-white rounded-[2.5rem] p-10 shadow-2xl text-center space-y-8">
+            <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tighter">Admin Portal</h1>
+            <div class="space-y-4">
+                <input type="email" id="admin-email" placeholder="Email Corporate" class="w-full p-4 bg-slate-50 border rounded-2xl outline-none">
+                <input type="password" id="admin-pw" placeholder="Password" class="w-full p-4 bg-slate-50 border rounded-2xl outline-none">
+                <button onclick="loginAdmin()" class="w-full bg-[#0f172a] text-white p-4 rounded-2xl font-black uppercase shadow-xl hover:bg-indigo-600 transition">Sign In</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboard-view" class="hidden">
+        </div>
+    <div id="auth-view" class="hidden min-h-screen flex items-center justify-center p-6">
+        <div class="max-w-md w-full bg-white rounded-[2.5rem] p-10 shadow-2xl text-center space-y-8">
             <div>
                 <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg rotate-3">
                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
