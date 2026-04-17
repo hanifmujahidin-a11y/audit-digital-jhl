@@ -80,11 +80,61 @@
 
     <script>
         const CATEGORIES = [
-            { title: "Data & Tracking", questions: ["Setup GTM (Global)","Integrasi GA4 E-commerce","Meta Pixel & CAPI","Form Submission Tracking","WhatsApp Event Tracking","E-comm Checkout Tracking","Server-Side GTM Setup","Cross-Domain Tracking","Audit Kebocoran Data","Data Validation Routine"] },
-            { title: "Performance Ads", questions: ["Google Hotel Ads (GHA)","Brand Protection Ads","Dynamic Creative (DCO)","Sync Audience PMS","Retargeting Abandoned Booking","Share of Voice (Ads)","tROAS Optimization","A/B Testing Visual","Advantage+ Campaigns","Budget vs Demand Sync"] },
-            { title: "SEO & Content", questions: ["GBP (Maps) Optimization","Core Web Vitals Score","Content Strategy Lokal","Schema Markup Implementation","Quality Backlinks Profile","Image & Video Optimization","Internal Linking Web","Search Console Monitoring","Meta Titles Optimization","UI/UX Booking Engine"] },
-            { title: "Revenue Sync", questions: ["Rate Parity Monitoring","Demand Forecasting Tools","Members-only Web Promo","Sync Website vs OTA","RGI Strategy Digital","Digital Upselling Tool","Online Reputation Impact","Direct vs OTA Mix","Geo-Targeting Pricing","Digital Price Audit"] },
-            { title: "Strategy & Mgmt", questions: ["Content Pillar Plan","Vertical Video Strategy","CRM/Email Automation","Chatbot/DM Automation","Unified Monthly Report","Heatmap Analysis","Influencer ROI Tracking","Asset Management (DAM)","Social Crisis Protocol","Admin Efficiency Tools"] }
+            { title: "Domain 1: Arsitektur Data & Pelacakan (Tracking)", questions: 
+                ["Setup GTM (Global)",
+                 "Setup Google Tag Manager (GTM) untuk pelacakan klik tombol reservasi.",
+                 "Integrasi GA4 E-commerce untuk melacak pendapatan dari Booking Engine.",
+                 "Konfigurasi Server-Side Tracking untuk menghadapi pembatasan Cookie iOS.",
+                 "Implementasi Meta Pixel dan Conversion API (CAPI) secara manual.",
+                 "Melakukan Cross-Domain tracking antara domain hotel (.com) dan vendor BE.",
+                 "Pengaturan Custom Dimensions di GA4 untuk melacak asal market (Domestic/Intl).",
+                 "Pelacakan formulir MICE/Wedding dengan kustomisasi trigger.",
+                 "Setup pelacakan klik link WhatsApp menggunakan UTM Parameters.",
+                 "Audit data leakage (kebocoran data) antar halaman website."] },
+            { title: "Domain 2: Strategi Iklan Berbayar (Performance Ads)", questions: 
+                ["Optimasi Google Hotel Ads (GHA) dan manajemen komisi (Pay-per-Stay).",
+                 "Manajemen kampanye Search Engine Marketing (SEM) berbasis Brand Protection.",
+                 "Setup Dynamic Creative Optimization (DCO) untuk iklan Meta.",
+                 "Pembuatan Custom Audiences berbasis database email tamu dari PMS.",
+                 "Strategi Retargeting untuk pengunjung yang 'abandoned booking'.",
+                 "Analisis 'Impression Share' iklan dibandingkan kompetitor hotel terdekat.",
+                 "Pengaturan Bid Strategy (tROAS) untuk maksimalkan nilai booking.",
+                 "A/B Testing judul iklan dan visual untuk meningkatkan CTR (Click-Through Rate).",
+                 "Setup Advantage+ Shopping Campaigns untuk penawaran F&B hotel.",
+                 "Manajemen budget iklan berbasis occupancy (Naikkan budget saat Low Season)."] },
+            { title: "Domain 3: SEO & Ekosistem Website", questions: 
+                ["Optimasi Google Business Profile (GBP) untuk Local SEO ranking.",
+                 "Audit Technical SEO: Page Speed, Core Web Vitals, dan Mobile-Friendliness.",
+                 "Manajemen konten blog berbasis keyword 'Things to do in [City]'.",
+                 "Penerapan Schema Markup (JSON-LD) khusus tipe Hotel/Business.",
+                 "Analisis Backlink profile hotel dan strategi link building lokal.",
+                 "Optimasi Image SEO (Alt-text & WebP format) untuk galeri hotel.",
+                 "Manajemen Internal Linking antar halaman promo dan tipe kamar.",
+                 "Penggunaan Google Search Console untuk monitoring indexing issue.",
+                 "Strategi optimasi Meta-Titles agar menarik klik dibanding OTA.",
+                 "Audit UI/UX website: Seberapa mudah tamu melakukan booking dalam 3 klik."] },
+            { title: "Domain 4: Revenue Sync & Distribusi Digital", questions: 
+                ["Pemahaman Rate Parity dan pengaruhnya terhadap biaya iklan.",
+                 "Analisis 'Demand Forecast' dari Digital Tools untuk menentukan budget marketing.",
+                 "Integrasi promo eksklusif website (Members Rate) di semua channel digital.",
+                 "Sinkronisasi ketersediaan kamar di Website vs OTA via Channel Manager.",
+                 "Analisis kontribusi channel digital terhadap total RGI (Revenue Generation Index).",
+                 "Strategi Upselling produk tambahan (Breakfast/Spa) di proses booking digital.",
+                 "Manajemen ulasan (Reputation Management) dan dampaknya ke konversi iklan.",
+                 "Analisis 'Cost per Acquisition' (CPA) digital vs Komisi OTA.",
+                 "Pengaturan penawaran Geo-Targeting (Harga berbeda untuk tiap negara).",
+                 "Audit konsistensi foto dan deskripsi di Website vs OTA."] },
+            { title: "Domain 5: Strategi Konten & Manajemen Organisasi", questions: 
+                ["Pembuatan Content Pillars untuk Social Media yang berorientasi konversi.",
+                 "Scripting video Reels/TikTok yang fokus pada 'Direct Booking Benefit'.",
+                 "Manajemen database email tamu untuk Monthly Newsletter & CRM.",
+                 "Otomasi respon chatbot/DM untuk memfilter leads reservasi.",
+                 "Penyusunan laporan bulanan terpadu (Ads + Web + Revenue).",
+                 "Analisis Heatmap (Hotjar) untuk melihat di mana user berhenti scroll.",
+                 "Manajemen kolaborasi dengan Influencer/KOL berbasis performa (ROI).",
+                 "Alokasi waktu kerja: Berapa jam untuk strategis vs berapa jam untuk admin.",
+                 "Manajemen aset digital (DAM) agar mudah diakses oleh tim Sales.",
+                 "Strategi krisis marketing saat hotel mendapat komplain viral."] }
         ];
 
         let currentStep = 0, hotelName = "", liveRadar = null, db = null;
