@@ -24,7 +24,6 @@
                 <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tighter">Admin Portal</h1>
                 <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Authorized Personnel Only</p>
             </div>
-            
             <div class="space-y-4 text-left">
                 <div>
                     <label class="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Email Address</label>
@@ -44,9 +43,9 @@
             <div class="max-w-7xl mx-auto flex justify-between items-center">
                 <div>
                     <h1 class="text-xl font-black uppercase tracking-tighter italic">Corporate Admin</h1>
-                    <p class="text-[10px] text-indigo-400 font-bold tracking-[0.3em]">JHL DIGITAL MATURITY HUB</p>
+                    <p class="text-[10px] text-indigo-400 font-bold tracking-[0.3em]">JHL DIGITAL HUB</p>
                 </div>
-                <button onclick="logout()" class="text-[10px] font-bold uppercase bg-red-500/10 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-white transition">Logout</button>
+                <button onclick="logout()" class="text-[10px] font-bold uppercase bg-red-500/10 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-white transition shadow-sm">Logout</button>
             </div>
         </header>
 
@@ -60,7 +59,7 @@
 
             <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden">
                 <div class="p-8 border-b flex justify-between items-center">
-                    <h4 class="font-black uppercase text-sm text-slate-500 tracking-widest italic">Daftar Hasil Audit Hotel</h4>
+                    <h4 class="font-black uppercase text-sm text-slate-500 tracking-widest italic tracking-wider">Daftar Hasil Audit Hotel</h4>
                     <button onclick="loadData()" class="text-xs font-bold text-indigo-600 uppercase">Sync Data</button>
                 </div>
                 <div class="overflow-x-auto">
@@ -74,7 +73,7 @@
                                 <th class="p-8 text-right">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="admin-table-body" class="divide-y divide-slate-100 text-sm font-semibold">
+                        <tbody id="admin-table-body" class="divide-y divide-slate-100 text-sm font-semibold italic">
                             </tbody>
                     </table>
                 </div>
@@ -83,7 +82,7 @@
     </div>
 
     <script>
-        // CONFIG FIREBASE (Salin API Key anda di sini)
+        // ISI CONFIG FIREBASE ANDA DI SINI
         const firebaseConfig = {
             apiKey: "AIzaSyDq8cuvGJJrWD9_R7NoShQTRWhrj0-CNVc", 
             authDomain: "audit-digital-jhl-v2.firebaseapp.com",
@@ -96,12 +95,10 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // 1. Cek Status Login Saat Halaman Dibuka
         function initAdmin() {
             firebase.auth().onAuthStateChanged(user => {
                 const authView = document.getElementById('auth-view');
                 const dashView = document.getElementById('dashboard-view');
-                
                 if (user && !user.isAnonymous) {
                     authView.classList.add('hidden');
                     dashView.classList.remove('hidden');
@@ -113,63 +110,49 @@
             });
         }
 
-        // 2. Fungsi Login
         async function loginAdmin() {
             const email = document.getElementById('admin-email').value;
             const pw = document.getElementById('admin-pw').value;
             const btn = document.getElementById('login-btn');
-
-            if(!email || !pw) return alert("Email dan password wajib diisi!");
-            
-            btn.innerText = "CHECKING AUTH...";
+            if(!email || !pw) return alert("Wajib isi Email & Password!");
+            btn.innerText = "CHECKING...";
             btn.disabled = true;
-
             try {
                 await firebase.auth().signInWithEmailAndPassword(email, pw);
             } catch (e) {
-                console.error(e);
-                alert("Akses Ditolak: Periksa Email/Password Anda.");
+                alert("Akses Ditolak!");
                 btn.innerText = "SIGN IN";
                 btn.disabled = false;
             }
         }
 
-        // 3. Fungsi Ambil Data dari Firestore
         function loadData() {
             db.collection('submissions').orderBy('timestamp', 'desc').onSnapshot(snap => {
                 const tbody = document.getElementById('admin-table-body');
                 tbody.innerHTML = '';
                 document.getElementById('total-count').innerText = snap.size;
-
                 snap.forEach(doc => {
                     const data = doc.data();
                     const date = data.timestamp ? new Date(data.timestamp).toLocaleString('id-ID') : '-';
-
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition";
                     tr.innerHTML = `
-                        <td class="p-8 font-black text-slate-800 italic">${data.hotelName || 'Unknown'}</td>
+                        <td class="p-8 font-black text-slate-800 italic">${data.hotelName || 'Unit'}</td>
                         <td class="p-8 font-black text-indigo-600 text-lg">${Math.round(data.overall || 0)}%</td>
                         <td class="p-8">
                             <span class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${data.overall > 70 ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}">
                                 ${data.overall > 70 ? 'Advanced' : 'Standard'}
                             </span>
                         </td>
-                        <td class="p-8 text-slate-400 text-xs">${date}</td>
-                        <td class="p-8 text-right">
-                            <button class="bg-slate-800 text-white text-[10px] font-black uppercase px-6 py-3 rounded-2xl hover:bg-indigo-600 transition">Detail</button>
-                        </td>
+                        <td class="p-8 text-slate-400 text-xs font-normal">${date}</td>
+                        <td class="p-8 text-right"><button class="bg-slate-800 text-white text-[10px] font-black uppercase px-6 py-3 rounded-2xl">Detail</button></td>
                     `;
                     tbody.appendChild(tr);
                 });
             });
         }
 
-        // 4. Logout
-        function logout() {
-            firebase.auth().signOut();
-        }
-
+        function logout() { firebase.auth().signOut(); }
         window.onload = initAdmin;
     </script>
 </body>
