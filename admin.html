@@ -75,10 +75,31 @@
         const db = firebase.firestore();
 
         async function initAdmin() {
+            firebase.auth().onAuthStateChanged(user => {
+                if (user && !user.isAnonymous) {
+                    // Jika sudah login sebagai Admin, tampilkan data
+                    document.getElementById('auth-view').classList.add('hidden');
+                    document.getElementById('dashboard-view').classList.remove('hidden');
+                    loadData();
+                } else {
+                    // Jika belum login atau anonim, tampilkan form login
+                    document.getElementById('auth-view').classList.remove('hidden');
+                    document.getElementById('dashboard-view').classList.add('hidden');
+                }
+            });
+        }
+
+// 2. Tambahkan fungsi Login ini:
+        async function loginAdmin() {
+            const email = document.getElementById('admin-email').value;
+            const pw = document.getElementById('admin-pw').value;
+            
             try {
-                await firebase.auth().signInAnonymously();
-                loadData();
-            } catch (e) { console.error(e); }
+                await firebase.auth().signInWithEmailAndPassword(email, pw);
+                alert("Login Berhasil!");
+            } catch (e) {
+                alert("Akses Ditolak: Periksa Email/Password Anda.");
+            }
         }
 
         function loadData() {
