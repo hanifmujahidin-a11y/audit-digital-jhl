@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JHL Corporate Admin - Digital Audit</title>
+    <title>JHL Corporate Admin - AI Strategic Audit</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -14,88 +14,96 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; }
+        .ai-gradient { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
     </style>
 </head>
 <body class="min-h-screen text-slate-800">
 
     <div id="auth-view" class="min-h-screen flex items-center justify-center p-6">
-        <div class="max-w-md w-full bg-white rounded-[2.5rem] p-10 shadow-2xl text-center space-y-8 border border-slate-100">
-            <h1 class="text-2xl font-black text-slate-800 uppercase italic tracking-tighter">Admin Portal</h1>
+        <div class="max-w-md w-full bg-white rounded-[3rem] p-12 shadow-2xl text-center space-y-8">
+            <div class="w-20 h-20 ai-gradient rounded-3xl mx-auto flex items-center justify-center shadow-lg">
+                <span class="text-white font-black text-3xl italic">JHL</span>
+            </div>
+            <h1 class="text-2xl font-black text-slate-800 uppercase italic tracking-tighter">AI Audit Portal</h1>
             <div class="space-y-4">
-                <input type="email" id="admin-email" placeholder="Corporate Email" class="w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold text-sm">
-                <input type="password" id="admin-pw" placeholder="Password" class="w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold text-sm">
-                <button onclick="loginAdmin()" class="w-full bg-[#0f172a] text-white p-4 rounded-2xl font-black hover:bg-indigo-600 transition shadow-lg uppercase tracking-widest text-xs">Sign In</button>
+                <input type="email" id="admin-email" placeholder="Corporate Email" class="w-full p-5 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
+                <input type="password" id="admin-pw" placeholder="Password" class="w-full p-5 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
+                <button onclick="loginAdmin()" class="w-full ai-gradient text-white p-5 rounded-2xl font-black hover:opacity-90 transition shadow-xl uppercase tracking-widest text-xs">Authorize Access</button>
             </div>
         </div>
     </div>
 
     <div id="dashboard-view" class="hidden">
-        <header class="bg-[#0f172a] text-white p-6 border-b border-slate-800 sticky top-0 z-50 flex justify-between items-center px-12">
-            <h1 class="text-xl font-black uppercase italic tracking-tighter">Corporate Digital Hub</h1>
-            <button onclick="logout()" class="text-[10px] font-bold uppercase bg-red-500/10 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-white transition">Logout</button>
+        <header class="bg-[#0f172a]/80 backdrop-blur-md text-white p-6 border-b border-white/10 sticky top-0 z-50 flex justify-between items-center px-12">
+            <h1 class="text-xl font-black uppercase italic tracking-tighter">Digital Maturity <span class="text-indigo-400">Intelligence</span></h1>
+            <button onclick="logout()" class="text-[10px] font-black uppercase bg-white/5 px-5 py-2.5 rounded-xl hover:bg-red-500 transition border border-white/10">Logout</button>
         </header>
 
-        <main class="max-w-7xl mx-auto p-12 space-y-12">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="bg-indigo-600 p-10 rounded-[3rem] text-white shadow-xl flex flex-col justify-center">
-                    <p class="text-[10px] font-black uppercase opacity-70 tracking-[0.2em] mb-2">Total Unit Terdata</p>
-                    <h3 id="total-count" class="text-8xl font-black italic tracking-tighter">0</h3>
+        <main class="max-w-7xl mx-auto p-12 space-y-10">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div class="ai-gradient p-12 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden">
+                    <div class="relative z-10">
+                        <p class="text-[10px] font-black uppercase opacity-80 tracking-[0.3em] mb-4">Total Submissions</p>
+                        <h3 id="total-count" class="text-9xl font-black italic tracking-tighter">0</h3>
+                        <p class="mt-6 text-xs font-bold opacity-70 italic leading-relaxed">Data dikumpulkan secara real-time dari seluruh unit hotel JHL Group.</p>
+                    </div>
+                    <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
                 </div>
-                <div class="md:col-span-2 bg-white rounded-[3rem] p-10 shadow-lg border border-slate-100">
-                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-6 italic">Analisis Kompetensi Korporat</h4>
-                    <div class="h-[350px]">
+                
+                <div class="lg:col-span-2 bg-white rounded-[3.5rem] p-12 shadow-xl border border-slate-100">
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] mb-8 italic">Corporate Average Performance</h4>
+                    <div class="h-[380px]">
                         <canvas id="corporateRadarChart"></canvas>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-[3rem] shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-10 border-b flex justify-between items-center bg-slate-50/50">
-                    <h4 class="font-black uppercase text-xs text-slate-500 tracking-[0.2em] italic">Daftar Hasil Audit Hotel</h4>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-slate-50 text-[10px] uppercase font-black text-slate-400 tracking-widest">
-                            <tr>
-                                <th class="p-10">Unit Hotel</th>
-                                <th class="p-10 text-center">Avg Score</th>
-                                <th class="p-10">Status</th>
-                                <th class="p-10">Waktu Input</th>
-                                <th class="p-10 text-right">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-table-body" class="divide-y divide-slate-100 text-sm font-bold italic text-slate-700 uppercase tracking-tighter"></tbody>
-                    </table>
-                </div>
+            <div class="bg-white rounded-[3.5rem] shadow-xl border border-slate-100 overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50/50 text-[10px] uppercase font-black text-slate-400 tracking-widest border-b border-slate-100">
+                        <tr>
+                            <th class="p-10">Unit Hotel</th>
+                            <th class="p-10 text-center">Score</th>
+                            <th class="p-10">Maturity Level</th>
+                            <th class="p-10">Submission Date</th>
+                            <th class="p-10 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body" class="divide-y divide-slate-50 text-sm font-bold italic text-slate-700 uppercase tracking-tighter"></tbody>
+                </table>
             </div>
         </main>
     </div>
 
-    <div id="detail-modal" class="hidden fixed inset-0 bg-slate-900/95 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-5xl rounded-[3.5rem] overflow-y-auto max-h-[90vh] shadow-2xl relative">
-            <button onclick="closeModal()" class="absolute top-8 right-10 text-slate-400 hover:text-red-500 transition font-black text-4xl z-10">&times;</button>
+    <div id="detail-modal" class="hidden fixed inset-0 bg-slate-900/98 backdrop-blur-xl z-[100] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-6xl rounded-[4rem] overflow-y-auto max-h-[95vh] shadow-2xl relative">
+            <button onclick="closeModal()" class="absolute top-10 right-12 text-slate-300 hover:text-red-500 transition font-black text-5xl z-10">&times;</button>
             
-            <div class="grid grid-cols-1 md:grid-cols-2">
-                <div class="p-14 border-r border-slate-100 bg-slate-50 space-y-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2">
+                <div class="p-16 bg-slate-50/50 space-y-10 border-r border-slate-100">
                     <div>
-                        <h2 id="modal-hotel-name" class="text-5xl font-black italic uppercase text-slate-900 tracking-tighter leading-none">Hotel</h2>
-                        <p id="modal-date" class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-4"></p>
+                        <span class="bg-indigo-100 text-indigo-600 text-[10px] font-black px-4 py-1 rounded-full uppercase tracking-widest">Audit Result</span>
+                        <h2 id="modal-hotel-name" class="text-6xl font-black italic uppercase text-slate-900 tracking-tighter leading-none mt-4">Hotel</h2>
+                        <p id="modal-date" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-6"></p>
                     </div>
-                    <div class="bg-indigo-600 p-10 rounded-[2.5rem] text-white">
-                        <p class="text-[10px] font-black uppercase opacity-70 tracking-widest mb-2">Overall Digital Maturity</p>
-                        <h3 id="modal-overall-score" class="text-8xl font-black italic tracking-tighter">0%</h3>
+                    <div class="ai-gradient p-12 rounded-[3rem] text-white shadow-2xl shadow-indigo-200">
+                        <p class="text-[10px] font-black uppercase opacity-80 tracking-widest mb-2 italic">Overall Digital Score</p>
+                        <h3 id="modal-overall-score" class="text-9xl font-black italic tracking-tighter">0%</h3>
                     </div>
                 </div>
-                <div class="p-14 flex flex-col justify-center">
-                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-8 italic">Radar Performance Unit</h4>
-                    <div class="h-[320px]">
+                <div class="p-16 flex flex-col justify-center">
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] mb-10 italic">Capability Map</h4>
+                    <div class="h-[350px]">
                         <canvas id="individualRadarChart"></canvas>
                     </div>
                 </div>
             </div>
 
-            <div class="p-14 border-t border-slate-100 bg-white">
-                <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] mb-10 italic text-center">Executive Strategic Recommendation</h4>
+            <div class="p-16 border-t border-slate-100 bg-white">
+                <div class="flex items-center gap-3 mb-10">
+                    <div class="w-2 h-8 ai-gradient rounded-full"></div>
+                    <h4 class="text-[11px] font-black uppercase text-slate-800 tracking-[0.4em] italic">AI-Generated Executive Summary</h4>
+                </div>
                 <div id="strategic-analysis-box" class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     </div>
             </div>
@@ -103,7 +111,7 @@
     </div>
 
     <script>
-        // --- MASUKKAN CONFIG FIREBASE ANDA DI SINI ---
+        // CONFIG FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyDq8cuvGJJrWD9_R7NoShQTRWhrj0-CNVc",
             authDomain: "audit-digital-jhl-v2.firebaseapp.com",
@@ -118,14 +126,7 @@
 
         let corporateChart = null;
         let individualChart = null;
-
-        const globalCategories = [
-            "Data & Tracking", 
-            "Performance Ads", 
-            "SEO & Web", 
-            "Revenue Sync", 
-            "Content Strategy"
-        ];
+        const globalCategories = ["Data & Tracking", "Performance Ads", "SEO & Web", "Revenue Sync", "Content Strategy"];
 
         function initAdmin() {
             firebase.auth().onAuthStateChanged(user => {
@@ -134,11 +135,9 @@
                 if (user && !user.isAnonymous) {
                     authView.classList.add('hidden');
                     dashView.classList.remove('hidden');
-                    loadData(); 
-                    loadCorporateStats(); 
+                    loadData(); loadCorporateStats(); 
                 } else {
-                    authView.classList.remove('hidden');
-                    dashView.classList.add('hidden');
+                    authView.classList.remove('hidden'); dashView.classList.add('hidden');
                 }
             });
         }
@@ -146,11 +145,8 @@
         async function loginAdmin() {
             const email = document.getElementById('admin-email').value;
             const pw = document.getElementById('admin-pw').value;
-            try {
-                await firebase.auth().signInWithEmailAndPassword(email, pw);
-            } catch (e) {
-                alert("Akses Ditolak: Periksa Email/Password.");
-            }
+            try { await firebase.auth().signInWithEmailAndPassword(email, pw); } 
+            catch (e) { alert("Login Error: Periksa kredensial Anda."); }
         }
 
         function loadData() {
@@ -158,126 +154,119 @@
                 const tbody = document.getElementById('admin-table-body');
                 tbody.innerHTML = '';
                 document.getElementById('total-count').innerText = snap.size;
-
                 snap.forEach(doc => {
-                    const data = doc.data();
+                    const d = doc.data();
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition";
                     tr.innerHTML = `
-                        <td class="p-10">${data.hotelName || 'Unit'}</td>
-                        <td class="p-10 text-center text-2xl font-black text-indigo-600">${Math.round(data.overall || 0)}%</td>
-                        <td class="p-10"><span class="px-4 py-1.5 rounded-full text-[9px] font-black uppercase ${data.overall > 70 ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}">${data.overall > 70 ? 'Advanced' : 'Standard'}</span></td>
-                        <td class="p-10 text-slate-400 text-[10px]">${data.timestamp ? new Date(data.timestamp).toLocaleString('id-ID') : '-'}</td>
-                        <td class="p-10 text-right"><button onclick='showDetail(${JSON.stringify(data)})' class="bg-[#0f172a] text-white text-[9px] font-black uppercase px-6 py-3 rounded-xl hover:bg-indigo-600 transition tracking-widest">Detail</button></td>
+                        <td class="p-10 font-extrabold text-slate-900">${d.hotelName || 'UNIT'}</td>
+                        <td class="p-10 text-center text-2xl font-black text-indigo-600">${Math.round(d.overall || 0)}%</td>
+                        <td class="p-10"><span class="px-5 py-2 rounded-xl text-[9px] font-black uppercase ${d.overall > 70 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'} border border-current opacity-80">${d.overall > 70 ? 'Advanced' : 'Standard'}</span></td>
+                        <td class="p-10 text-slate-400 text-[10px] font-bold">${d.timestamp ? new Date(d.timestamp).toLocaleString('id-ID') : '-'}</td>
+                        <td class="p-10 text-right"><button onclick='showDetail(${JSON.stringify(d)})' class="ai-gradient text-white text-[9px] font-black uppercase px-8 py-4 rounded-2xl hover:scale-105 transition tracking-widest shadow-lg shadow-indigo-100">Deep Analysis</button></td>
                     `;
                     tbody.appendChild(tr);
                 });
             });
         }
 
-        // LOGIKA ANALISIS STRATEGIS (Tujuan 1, 2, 3)
+        // --- AI STRATEGIC LOGIC ENGINE ---
         function generateStrategicAnalysis(scores) {
-            // scores index: 0=Data, 1=Ads, 2=SEO, 3=RevSync, 4=Content
-            let html = "";
+            // scores: 0:Data, 1:Ads, 2:SEO, 3:RevSync, 4:Content
+            let sdm = "", train = "", strategy = "";
 
-            // 1. Analisis Kualitas & Fokus SDM
-            let sdmStatus = (scores[4] > 75 && scores[1] < 50) ? 
-                "Tim sangat fokus pada produksi konten kreatif, namun kurang dalam eksekusi teknis iklan (Performance)." : 
-                "Kualitas SDM seimbang antara kreativitas dan kemampuan manajemen data.";
-            
-            html += `
-                <div class="space-y-4">
-                    <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-black text-xs">1</div>
-                    <h5 class="font-black text-xs uppercase tracking-tighter italic">Kualitas SDM Digital</h5>
-                    <p class="text-xs text-slate-500 font-semibold leading-relaxed">${sdmStatus}</p>
-                </div>`;
+            // Analisis SDM (Tujuan 1)
+            if (scores[4] > 70 && scores[1] < 50) {
+                sdm = "Kesenjangan Kompetensi: Tim memiliki keahlian kreatif tinggi namun mengalami 'Technical Blindness' pada performa iklan. Dibutuhkan diversifikasi tugas.";
+            } else if (scores[0] < 50) {
+                sdm = "Risiko Akurasi: Kualitas SDM terhambat oleh infrastruktur data yang tidak memadai. Keputusan strategi saat ini tidak memiliki landasan data yang valid.";
+            } else {
+                sdm = "Kapabilitas Stabil: Tim menunjukkan keseimbangan yang baik antara eksekusi teknis dan operasional kreatif.";
+            }
 
-            // 2. Rekomendasi Pelatihan (HC/Corporate)
-            let trainingNeed = (scores[0] < 60 || scores[2] < 60) ? 
-                "Diperlukan Pelatihan Advanced GA4 & GTM untuk meningkatkan akurasi data dan pemantauan trafik website secara internal." : 
-                "Kompetensi teknis sudah memadai. Fokus pada pelatihan tren AI Marketing terbaru.";
+            // Analisis Pelatihan (Tujuan 2)
+            const lowIndex = scores.indexOf(Math.min(...scores));
+            const trainings = [
+                "Workshop Teknis GTM & Server-Side Tracking.",
+                "Sertifikasi Google Hotel Ads & Meta Conversion API.",
+                "Audit Technical SEO & User Experience Website.",
+                "Pelatihan Revenue Sync & Rate Parity Distribution.",
+                "Content Engineering & Creative ROI Management."
+            ];
+            train = `Prioritas Pengembangan: Unit wajib mengikuti <b>${trainings[lowIndex]}</b> untuk menutup celah kompetensi terendah.`;
 
-            html += `
-                <div class="space-y-4">
-                    <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-black text-xs">2</div>
-                    <h5 class="font-black text-xs uppercase tracking-tighter italic">Kebutuhan Pelatihan</h5>
-                    <p class="text-xs text-slate-500 font-semibold leading-relaxed">${trainingNeed}</p>
-                </div>`;
+            // Analisis Struktur (Tujuan 3)
+            const avg = scores.reduce((a, b) => a + b) / 5;
+            if (avg < 50 || scores[1] < 40) {
+                strategy = "Agency Recommended: Celah performa terlalu dalam. Disarankan menggunakan pihak ketiga untuk mengelola Ads/SEO guna menghindari kerugian budget lebih lanjut.";
+            } else if (scores[0] < 50 || scores[3] < 50) {
+                strategy = "Specialist Hiring: Diperlukan tambahan 1 staf khusus level 'Regional Specialist' untuk memperbaiki sinkronisasi data dan revenue korporat.";
+            } else {
+                strategy = "Internal Optimization: Pertahankan tim internal. Tidak butuh agency. Berikan target bonus berbasis target digital ROI.";
+            }
 
-            // 3. Pertimbangan Agency vs Hiring
-            let hiringAdvice = (scores[1] < 45 || scores[3] < 45) ? 
-                "Direkomendasikan bekerja sama dengan Digital Agency atau merekrut Regional Specialist untuk mengamankan ROI iklan dan Rate Parity." : 
-                "Unit mampu mengelola operasional secara mandiri tanpa bantuan pihak ketiga/agency.";
-
-            html += `
-                <div class="space-y-4">
-                    <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-black text-xs">3</div>
-                    <h5 class="font-black text-xs uppercase tracking-tighter italic">Strategi Organisasi</h5>
-                    <p class="text-xs text-slate-500 font-semibold leading-relaxed">${hiringAdvice}</p>
-                </div>`;
-
-            return html;
+            return `
+                <div class="p-8 bg-slate-50 rounded-[2.5rem] space-y-4 border border-slate-100 shadow-sm">
+                    <span class="text-indigo-600 text-[9px] font-black uppercase tracking-widest italic">SDM Assessment</span>
+                    <p class="text-[13px] font-bold text-slate-700 leading-relaxed">${sdm}</p>
+                </div>
+                <div class="p-8 bg-slate-50 rounded-[2.5rem] space-y-4 border border-slate-100 shadow-sm">
+                    <span class="text-indigo-600 text-[9px] font-black uppercase tracking-widest italic">HC Roadmap</span>
+                    <p class="text-[13px] font-bold text-slate-700 leading-relaxed">${train}</p>
+                </div>
+                <div class="p-8 bg-indigo-900 rounded-[2.5rem] space-y-4 shadow-2xl">
+                    <span class="text-indigo-300 text-[9px] font-black uppercase tracking-widest italic">Organizational Decision</span>
+                    <p class="text-[13px] font-bold text-white leading-relaxed italic">${strategy}</p>
+                </div>
+            `;
         }
 
-        function showDetail(data) {
-            document.getElementById('modal-hotel-name').innerText = data.hotelName;
-            document.getElementById('modal-date').innerText = `Record Date: ${data.timestamp ? new Date(data.timestamp).toLocaleString('id-ID') : '-'}`;
-            document.getElementById('modal-overall-score').innerText = `${Math.round(data.overall)}%`;
-            
-            renderRadarChart('individualRadarChart', data.scores, 'Unit Data', false);
-            document.getElementById('strategic-analysis-box').innerHTML = generateStrategicAnalysis(data.scores);
+        function showDetail(d) {
+            document.getElementById('modal-hotel-name').innerText = d.hotelName;
+            document.getElementById('modal-date').innerText = `Data Audit: ${d.timestamp ? new Date(d.timestamp).toLocaleString('id-ID') : '-'}`;
+            document.getElementById('modal-overall-score').innerText = `${Math.round(d.overall)}%`;
+            renderRadarChart('individualRadarChart', d.scores, 'Unit Performance', false);
+            document.getElementById('strategic-analysis-box').innerHTML = generateStrategicAnalysis(d.scores);
             document.getElementById('detail-modal').classList.remove('hidden');
         }
 
         async function loadCorporateStats() {
             const snap = await db.collection('submissions').get();
             if (snap.empty) return;
-            let sumScores = [0, 0, 0, 0, 0];
-            snap.forEach(doc => {
-                const d = doc.data();
-                if (d.scores) { d.scores.forEach((s, i) => { sumScores[i] += (s || 0); }); }
-            });
-            const avgScores = sumScores.map(v => Math.round(v / snap.size));
-            renderRadarChart('corporateRadarChart', avgScores, 'JHL Corporate Average', true);
+            let sum = [0, 0, 0, 0, 0];
+            snap.forEach(doc => { const d = doc.data(); if(d.scores) d.scores.forEach((s,i) => sum[i]+= (s||0)); });
+            renderRadarChart('corporateRadarChart', sum.map(v => v/snap.size), 'JHL Average', true);
         }
 
-        function renderRadarChart(canvasId, scoresData, labelName, isCorporate) {
+        function renderRadarChart(canvasId, scores, label, isCorp) {
             const ctx = document.getElementById(canvasId).getContext('2d');
-            if (isCorporate && corporateChart) corporateChart.destroy();
-            if (!isCorporate && individualChart) individualChart.destroy();
-
-            const chart = new Chart(ctx, {
+            if (isCorp && corporateChart) corporateChart.destroy();
+            if (!isCorp && individualChart) individualChart.destroy();
+            const config = {
                 type: 'radar',
                 data: {
                     labels: globalCategories,
                     datasets: [{
-                        label: labelName,
-                        data: scoresData,
-                        backgroundColor: 'rgba(99, 102, 241, 0.2)',
-                        borderColor: '#6366f1',
-                        borderWidth: 3,
-                        pointRadius: 4
+                        label: label, data: scores,
+                        backgroundColor: isCorp ? 'rgba(99, 102, 241, 0.2)' : 'rgba(168, 85, 247, 0.2)',
+                        borderColor: isCorp ? '#6366f1' : '#a855f7',
+                        borderWidth: 3, pointRadius: 5
                     }, {
-                        label: 'Standard Target',
-                        data: [100, 100, 100, 100, 100],
-                        borderColor: '#cbd5e1',
-                        borderWidth: 1,
-                        borderDash: [5, 5]
+                        label: 'Standard', data: [100, 100, 100, 100, 100],
+                        borderColor: '#e2e8f0', borderWidth: 1, borderDash: [5, 5]
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     scales: { r: { suggestedMin: 0, suggestedMax: 100, ticks: { display: false }, pointLabels: { font: { size: 9, weight: '800' } } } },
                     plugins: { legend: { position: 'bottom', labels: { font: { size: 10, weight: '700' } } } }
                 }
-            });
-            if (isCorporate) corporateChart = chart; else individualChart = chart;
+            };
+            if(isCorp) corporateChart = new Chart(ctx, config); else individualChart = new Chart(ctx, config);
         }
 
         function closeModal() { document.getElementById('detail-modal').classList.add('hidden'); }
         function logout() { firebase.auth().signOut(); }
-
         window.onload = initAdmin;
     </script>
 </body>
