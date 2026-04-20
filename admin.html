@@ -1,158 +1,245 @@
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JHL Corporate Digital Maturity Portal</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-<script>
-<script>
-    // 1. CONFIG FIREBASE (Tetap gunakan milik Anda)
-    const firebaseConfig = {
-        apiKey: "AIzaSyDq8cuvGJJrWD9_R7NoShQTRWhrj0-CNVc",
-        authDomain: "audit-digital-jhl-v2.firebaseapp.com",
-        projectId: "audit-digital-jhl-v2",
-        storageBucket: "audit-digital-jhl-v2.firebasestorage.app",
-        messagingSenderId: "839003631596",
-        appId: "1:839003631596:web:64113b8bd1a38bf5d31ac9"
-    };
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800">
 
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    <div id="auth-view" class="min-h-screen flex items-center justify-center p-6">
+        <div class="max-w-md w-full bg-white rounded-[2.5rem] p-10 shadow-2xl text-center space-y-8 border border-slate-100">
+            <h1 class="text-2xl font-black text-slate-800 uppercase italic">Admin Portal</h1>
+            <div class="space-y-4 text-left">
+                <input type="email" id="admin-email" placeholder="Email Corporate" class="w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500">
+                <input type="password" id="admin-pw" placeholder="Password Security" class="w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500">
+                <button onclick="loginAdmin()" id="login-btn" class="w-full bg-[#0f172a] text-white p-4 rounded-2xl font-black hover:bg-indigo-600 transition shadow-lg mt-4 uppercase">SIGN IN</button>
+            </div>
+        </div>
+    </div>
 
-    let corporateChart = null;
-    let individualChart = null;
+    <div id="dashboard-view" class="hidden">
+        <header class="bg-[#0f172a] text-white p-6 border-b border-slate-800 sticky top-0 z-50 flex justify-between items-center">
+            <h1 class="text-xl font-black uppercase italic tracking-tighter">Corporate Digital Hub</h1>
+            <button onclick="logout()" class="text-[10px] font-bold uppercase bg-red-500/10 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-white transition">Logout</button>
+        </header>
 
-    // UPDATE: Nama Domain Baru Sesuai List Pertanyaan Anda
-    const globalCategories = [
-        "Data Architecture & Tracking",   // Domain 1
-        "Performance Ads Strategy",       // Domain 2
-        "SEO & Web Ecosystem",            // Domain 3
-        "Revenue Sync & Distribution",    // Domain 4
-        "Content & Org Strategy"          // Domain 5
-    ];
+        <main class="max-w-7xl mx-auto p-6 space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+                <div class="space-y-6">
+                    <div class="bg-indigo-600 p-8 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden">
+                        <p class="text-xs font-bold uppercase opacity-70 tracking-widest mb-1">Unit Hotel Terdata</p>
+                        <h3 id="total-count" class="text-7xl font-black italic">0</h3>
+                    </div>
+                    
+                    <div class="bg-[#0f172a] border border-slate-800 rounded-[2.5rem] p-8 text-white space-y-4">
+                        <h4 class="text-lg font-black uppercase italic text-indigo-300">Rekomendasi Strategis</h4>
+                        <ul class="text-xs text-slate-300 list-decimal list-inside space-y-2 font-semibold">
+                            <li>Fokus pada Technical Support Tracking (Domain 1).</li>
+                            <li>Lakukan Creative Separation (Domain 5).</li>
+                            <li>Pastikan Revenue Alignment antar unit.</li>
+                        </ul>
+                    </div>
+                </div>
 
-    function initAdmin() {
-        firebase.auth().onAuthStateChanged(user => {
-            const authView = document.getElementById('auth-view');
-            const dashView = document.getElementById('dashboard-view');
-            if (user && !user.isAnonymous) {
-                authView.classList.add('hidden');
-                dashView.classList.remove('hidden');
-                loadData(); 
-                loadCorporateStats(); 
-            } else {
-                authView.classList.remove('hidden');
-                dashView.classList.add('hidden');
-            }
-        });
-    }
+                <div class="md:col-span-2 bg-white rounded-[2.5rem] p-10 shadow-lg border border-slate-100">
+                    <h4 class="text-sm font-black uppercase text-slate-500 tracking-widest italic mb-6">Analisis Kompetensi Korporat</h4>
+                    <div class="h-[400px]">
+                        <canvas id="corporateRadarChart"></canvas>
+                    </div>
+                </div>
+            </div>
 
-    // Load Data Tabel
-    function loadData() {
-        db.collection('submissions').orderBy('timestamp', 'desc').onSnapshot(snap => {
-            const tbody = document.getElementById('admin-table-body');
-            tbody.innerHTML = '';
-            document.getElementById('total-count').innerText = snap.size;
+            <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-8 border-b flex justify-between items-center bg-slate-50">
+                    <h4 class="font-black uppercase text-sm text-slate-500 tracking-widest italic">Daftar Hasil Audit Hotel</h4>
+                    <button onclick="loadData()" class="text-xs font-bold text-indigo-600 uppercase">Sync Data</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-400">
+                            <tr>
+                                <th class="p-8">Unit Hotel</th>
+                                <th class="p-8">Avg Score</th>
+                                <th class="p-8">Status</th>
+                                <th class="p-8">Waktu Input</th>
+                                <th class="p-8 text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-table-body" class="divide-y divide-slate-100 text-sm font-semibold italic"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
 
-            snap.forEach(doc => {
-                const data = doc.data();
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition";
-                tr.innerHTML = `
-                    <td class="p-8 font-black text-slate-800 uppercase italic tracking-tighter">${data.hotelName || 'Unit Unknown'}</td>
-                    <td class="p-8 font-black text-indigo-600 text-2xl tracking-tighter">${Math.round(data.overall || 0)}%</td>
-                    <td class="p-8">
-                        <span class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${data.overall > 70 ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}">
-                            ${data.overall > 70 ? 'Advanced' : 'Standard'}
-                        </span>
-                    </td>
-                    <td class="p-8 text-slate-400 text-xs">${data.timestamp ? new Date(data.timestamp).toLocaleString('id-ID') : '-'}</td>
-                    <td class="p-8 text-right">
-                        <button onclick='showDetail(${JSON.stringify(data)})' class="bg-slate-800 text-white text-[10px] font-black uppercase px-6 py-3 rounded-2xl hover:bg-indigo-600 transition shadow-lg">Detail</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
+    <div id="detail-modal" class="hidden fixed inset-0 bg-slate-900/95 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-4xl rounded-[3rem] overflow-hidden shadow-2xl relative">
+            <button onclick="closeModal()" class="absolute top-6 right-8 text-slate-400 hover:text-red-500 transition font-black text-3xl z-10">&times;</button>
+            <div class="grid grid-cols-1 md:grid-cols-2">
+                <div class="p-12 border-r border-slate-100 bg-slate-50 space-y-6">
+                    <div>
+                        <h2 id="modal-hotel-name" class="text-4xl font-black italic uppercase text-slate-900 tracking-tighter">Hotel Name</h2>
+                        <p id="modal-date" class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1"></p>
+                    </div>
+                    <div class="bg-indigo-600 p-8 rounded-3xl text-white">
+                        <p class="text-xs font-bold uppercase opacity-80 mb-1">Overall Digital Score</p>
+                        <h3 id="modal-overall-score" class="text-7xl font-black italic">0%</h3>
+                    </div>
+                </div>
+                <div class="p-12">
+                    <h4 class="text-xs font-black uppercase text-slate-500 tracking-widest italic mb-6">Radar Performance Unit</h4>
+                    <div class="h-[300px]">
+                        <canvas id="individualRadarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // MASUKKAN CONFIG FIREBASE ANDA DISINI
+        const firebaseConfig = {
+            apiKey: "AIzaSyDq8cuvGJJrWD9_R7NoShQTRWhrj0-CNVc",
+            authDomain: "audit-digital-jhl-v2.firebaseapp.com",
+            projectId: "audit-digital-jhl-v2",
+            storageBucket: "audit-digital-jhl-v2.firebasestorage.app",
+            messagingSenderId: "839003631596",
+            appId: "1:839003631596:web:64113b8bd1a38bf5d31ac9"
+        };
+
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let corporateChart = null;
+        let individualChart = null;
+
+        // Nama Domain Baru Sesuai Revisi Anda
+        const globalCategories = [
+            "Data & Tracking", 
+            "Performance Ads", 
+            "SEO/Web Ecosystem", 
+            "Revenue Sync", 
+            "Content Strategy"
+        ];
+
+        function initAdmin() {
+            firebase.auth().onAuthStateChanged(user => {
+                const authView = document.getElementById('auth-view');
+                const dashView = document.getElementById('dashboard-view');
+                if (user && !user.isAnonymous) {
+                    authView.classList.add('hidden');
+                    dashView.classList.remove('hidden');
+                    loadData(); 
+                    loadCorporateStats(); 
+                } else {
+                    authView.classList.remove('hidden');
+                    dashView.classList.add('hidden');
+                }
             });
-        });
-    }
+        }
 
-    // Load Statistik Kumulatif untuk Radar Utama
-    async function loadCorporateStats() {
-        const snap = await db.collection('submissions').get();
-        if (snap.empty) return;
-
-        let sumScores = [0, 0, 0, 0, 0];
-        snap.forEach(doc => {
-            const d = doc.data();
-            if (d.scores) {
-                d.scores.forEach((s, i) => { sumScores[i] += (s || 0); });
+        async function loginAdmin() {
+            const email = document.getElementById('admin-email').value;
+            const pw = document.getElementById('admin-pw').value;
+            try {
+                await firebase.auth().signInWithEmailAndPassword(email, pw);
+            } catch (e) {
+                alert("Login Gagal! Pastikan email dan password benar.");
             }
-        });
+        }
 
-        const avgScores = sumScores.map(val => Math.round(val / snap.size));
-        renderRadarChart('corporateRadarChart', avgScores, 'Rata-Rata Digital Maturity JHL', true);
-    }
+        function loadData() {
+            db.collection('submissions').orderBy('timestamp', 'desc').onSnapshot(snap => {
+                const tbody = document.getElementById('admin-table-body');
+                tbody.innerHTML = '';
+                document.getElementById('total-count').innerText = snap.size;
 
-    // Fungsi Render Radar Chart
-    function renderRadarChart(canvasId, scoresData, labelName, isCorporate) {
-        const ctx = document.getElementById(canvasId).getContext('2d');
-        if (isCorporate && corporateChart) corporateChart.destroy();
-        if (!isCorporate && individualChart) individualChart.destroy();
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 transition";
+                    tr.innerHTML = `
+                        <td class="p-8 font-black text-slate-800 uppercase italic tracking-tighter">${data.hotelName || 'Unit'}</td>
+                        <td class="p-8 font-black text-indigo-600 text-2xl">${Math.round(data.overall || 0)}%</td>
+                        <td class="p-8"><span class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase ${data.overall > 70 ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}">${data.overall > 70 ? 'Advanced' : 'Standard'}</span></td>
+                        <td class="p-8 text-slate-400 text-xs">${data.timestamp ? new Date(data.timestamp).toLocaleString('id-ID') : '-'}</td>
+                        <td class="p-8 text-right">
+                            <button onclick='showDetail(${JSON.stringify(data)})' class="bg-slate-800 text-white text-[10px] font-black uppercase px-6 py-3 rounded-2xl hover:bg-indigo-600 transition">Detail</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+        }
 
-        const config = {
-            type: 'radar',
-            data: {
-                labels: globalCategories,
-                datasets: [
-                    {
+        async function loadCorporateStats() {
+            const snap = await db.collection('submissions').get();
+            if (snap.empty) return;
+            let sumScores = [0, 0, 0, 0, 0];
+            snap.forEach(doc => {
+                const d = doc.data();
+                if (d.scores) { d.scores.forEach((s, i) => { sumScores[i] += (s || 0); }); }
+            });
+            const avgScores = sumScores.map(v => Math.round(v / snap.size));
+            renderRadarChart('corporateRadarChart', avgScores, 'Rata-Rata JHL', true);
+        }
+
+        function renderRadarChart(canvasId, scoresData, labelName, isCorporate) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            if (isCorporate && corporateChart) corporateChart.destroy();
+            if (!isCorporate && individualChart) individualChart.destroy();
+
+            const newChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: globalCategories,
+                    datasets: [{
                         label: labelName,
                         data: scoresData,
-                        fill: true,
                         backgroundColor: 'rgba(251, 191, 36, 0.2)',
                         borderColor: '#fbbf24',
-                        pointBackgroundColor: '#fbbf24',
                         borderWidth: 2
-                    },
-                    {
-                        label: 'Standard Target',
+                    }, {
+                        label: 'Standard',
                         data: [100, 100, 100, 100, 100],
-                        fill: true,
-                        backgroundColor: 'rgba(99, 102, 241, 0.05)',
                         borderColor: '#6366f1',
                         borderWidth: 1,
                         borderDash: [5, 5]
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    r: {
-                        suggestedMin: 0,
-                        suggestedMax: 100,
-                        ticks: { display: false, stepSize: 20 },
-                        pointLabels: { font: { size: 9, weight: '700' }, color: '#64748b' }
-                    }
+                    }]
                 },
-                plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
-            }
-        };
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { r: { suggestedMin: 0, suggestedMax: 100, ticks: { display: false } } }
+                }
+            });
+            if (isCorporate) corporateChart = newChart; else individualChart = newChart;
+        }
 
-        if (isCorporate) corporateChart = new Chart(ctx, config);
-        else individualChart = new Chart(ctx, config);
-    }
+        function showDetail(data) {
+            document.getElementById('modal-hotel-name').innerText = data.hotelName;
+            document.getElementById('modal-date').innerText = `Input: ${data.timestamp ? new Date(data.timestamp).toLocaleString('id-ID') : '-'}`;
+            document.getElementById('modal-overall-score').innerText = `${Math.round(data.overall)}%`;
+            renderRadarChart('individualRadarChart', data.scores, 'Unit Performance', false);
+            document.getElementById('detail-modal').classList.remove('hidden');
+        }
 
-    // Tampilkan Modal Detail
-    function showDetail(data) {
-        document.getElementById('modal-hotel-name').innerText = data.hotelName;
-        document.getElementById('modal-date').innerText = `Input: ${data.timestamp ? new Date(data.timestamp).toLocaleString('id-ID') : '-'}`;
-        document.getElementById('modal-overall-score').innerText = `${Math.round(data.overall)}%`;
+        function closeModal() { document.getElementById('detail-modal').classList.add('hidden'); }
+        function logout() { firebase.auth().signOut(); }
 
-        renderRadarChart('individualRadarChart', data.scores, 'Unit Performance', false);
-        document.getElementById('detail-modal').classList.remove('hidden');
-    }
-
-    function closeModal() { document.getElementById('detail-modal').classList.add('hidden'); }
-    function logout() { firebase.auth().signOut(); }
-
-    window.onload = initAdmin;
-</script>
+        window.onload = initAdmin;
+    </script>
+</body>
+</html>
