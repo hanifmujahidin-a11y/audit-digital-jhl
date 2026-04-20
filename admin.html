@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JHL Corporate Admin - AI Strategic Audit</title>
+    <title>JHL Corporate Admin - Strategic Intelligence</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -47,13 +47,21 @@
                         <h3 id="total-count" class="text-9xl font-black italic tracking-tighter">0</h3>
                         <p class="mt-6 text-xs font-bold opacity-70 italic leading-relaxed">Data dikumpulkan secara real-time dari seluruh unit hotel JHL Collection.</p>
                     </div>
-                    <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
                 </div>
                 
                 <div class="lg:col-span-2 bg-white rounded-[3.5rem] p-12 shadow-xl border border-slate-100">
-                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] mb-8 italic">Corporate Average Performance</h4>
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] mb-8 italic text-center">Corporate Average Performance</h4>
                     <div class="h-[380px]">
                         <canvas id="corporateRadarChart"></canvas>
+                    </div>
+
+                    <div class="mt-12 pt-12 border-t border-slate-100">
+                        <div class="flex items-center gap-3 mb-8">
+                            <div class="w-1.5 h-6 ai-gradient rounded-full"></div>
+                            <h4 class="text-[10px] font-black uppercase text-slate-800 tracking-[0.3em] italic">Group Strategic Intelligence</h4>
+                        </div>
+                        <div id="general-corporate-analysis" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            </div>
                     </div>
                 </div>
             </div>
@@ -102,16 +110,14 @@
             <div class="p-16 border-t border-slate-100 bg-white">
                 <div class="flex items-center gap-3 mb-10">
                     <div class="w-2 h-8 ai-gradient rounded-full"></div>
-                    <h4 class="text-[11px] font-black uppercase text-slate-800 tracking-[0.4em] italic">Executive Summary</h4>
+                    <h4 class="text-[11px] font-black uppercase text-slate-800 tracking-[0.4em] italic">AI-Generated Executive Summary</h4>
                 </div>
-                <div id="strategic-analysis-box" class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    </div>
+                <div id="strategic-analysis-box" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // CONFIG FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyDq8cuvGJJrWD9_R7NoShQTRWhrj0-CNVc",
             authDomain: "audit-digital-jhl-v2.firebaseapp.com",
@@ -124,20 +130,18 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        let corporateChart = null;
-        let individualChart = null;
+        let corporateChart = null, individualChart = null;
         const globalCategories = ["Data & Tracking", "Performance Ads", "SEO & Web", "Revenue Sync", "Content Strategy"];
 
         function initAdmin() {
             firebase.auth().onAuthStateChanged(user => {
-                const authView = document.getElementById('auth-view');
-                const dashView = document.getElementById('dashboard-view');
                 if (user && !user.isAnonymous) {
-                    authView.classList.add('hidden');
-                    dashView.classList.remove('hidden');
+                    document.getElementById('auth-view').classList.add('hidden');
+                    document.getElementById('dashboard-view').classList.remove('hidden');
                     loadData(); loadCorporateStats(); 
                 } else {
-                    authView.classList.remove('hidden'); dashView.classList.add('hidden');
+                    document.getElementById('auth-view').classList.remove('hidden');
+                    document.getElementById('dashboard-view').classList.add('hidden');
                 }
             });
         }
@@ -145,8 +149,7 @@
         async function loginAdmin() {
             const email = document.getElementById('admin-email').value;
             const pw = document.getElementById('admin-pw').value;
-            try { await firebase.auth().signInWithEmailAndPassword(email, pw); } 
-            catch (e) { alert("Login Error: Periksa kredensial Anda."); }
+            try { await firebase.auth().signInWithEmailAndPassword(email, pw); } catch (e) { alert("Login Error."); }
         }
 
         function loadData() {
@@ -170,72 +173,41 @@
             });
         }
 
-        // --- AI STRATEGIC LOGIC ENGINE ---
-        function generateStrategicAnalysis(scores) {
-            // scores: 0:Data, 1:Ads, 2:SEO, 3:RevSync, 4:Content
-            let sdm = "", train = "", strategy = "";
-
-            // Analisis SDM (Tujuan 1)
-            if (scores[4] > 70 && scores[1] < 50) {
-                sdm = "Kesenjangan Kompetensi: Tim memiliki keahlian kreatif tinggi namun mengalami 'Technical Blindness' pada performa iklan. Dibutuhkan diversifikasi tugas.";
-            } else if (scores[0] < 50) {
-                sdm = "Risiko Akurasi: Kualitas SDM terhambat oleh infrastruktur data yang tidak memadai. Keputusan strategi saat ini tidak memiliki landasan data yang valid.";
-            } else {
-                sdm = "Kapabilitas Stabil: Tim menunjukkan keseimbangan yang baik antara eksekusi teknis dan operasional kreatif.";
-            }
-
-            // Analisis Pelatihan (Tujuan 2)
-            const lowIndex = scores.indexOf(Math.min(...scores));
-            const trainings = [
-                "Workshop Teknis GTM & Server-Side Tracking.",
-                "Sertifikasi Google Hotel Ads & Meta Conversion API.",
-                "Audit Technical SEO & User Experience Website.",
-                "Pelatihan Revenue Sync & Rate Parity Distribution.",
-                "Content Engineering & Creative ROI Management."
-            ];
-            train = `Prioritas Pengembangan: Unit wajib mengikuti <b>${trainings[lowIndex]}</b> untuk menutup celah kompetensi terendah.`;
-
-            // Analisis Struktur (Tujuan 3)
-            const avg = scores.reduce((a, b) => a + b) / 5;
-            if (avg < 50 || scores[1] < 40) {
-                strategy = "Agency Recommended: Celah performa terlalu dalam. Disarankan menggunakan pihak ketiga untuk mengelola Ads/SEO guna menghindari kerugian budget lebih lanjut.";
-            } else if (scores[0] < 50 || scores[3] < 50) {
-                strategy = "Specialist Hiring: Diperlukan tambahan 1 staf khusus level 'Regional Specialist' untuk memperbaiki sinkronisasi data dan revenue korporat.";
-            } else {
-                strategy = "Internal Optimization: Pertahankan tim internal. Tidak butuh agency. Berikan target bonus berbasis target digital ROI.";
-            }
-
-            return `
-                <div class="p-8 bg-slate-50 rounded-[2.5rem] space-y-4 border border-slate-100 shadow-sm">
-                    <span class="text-indigo-600 text-[9px] font-black uppercase tracking-widest italic">SDM Assessment</span>
-                    <p class="text-[13px] font-bold text-slate-700 leading-relaxed">${sdm}</p>
-                </div>
-                <div class="p-8 bg-slate-50 rounded-[2.5rem] space-y-4 border border-slate-100 shadow-sm">
-                    <span class="text-indigo-600 text-[9px] font-black uppercase tracking-widest italic">HC Roadmap</span>
-                    <p class="text-[13px] font-bold text-slate-700 leading-relaxed">${train}</p>
-                </div>
-                <div class="p-8 bg-indigo-900 rounded-[2.5rem] space-y-4 shadow-2xl">
-                    <span class="text-indigo-300 text-[9px] font-black uppercase tracking-widest italic">Organizational Decision</span>
-                    <p class="text-[13px] font-bold text-white leading-relaxed italic">${strategy}</p>
-                </div>
-            `;
-        }
-
-        function showDetail(d) {
-            document.getElementById('modal-hotel-name').innerText = d.hotelName;
-            document.getElementById('modal-date').innerText = `Data Audit: ${d.timestamp ? new Date(d.timestamp).toLocaleString('id-ID') : '-'}`;
-            document.getElementById('modal-overall-score').innerText = `${Math.round(d.overall)}%`;
-            renderRadarChart('individualRadarChart', d.scores, 'Unit Performance', false);
-            document.getElementById('strategic-analysis-box').innerHTML = generateStrategicAnalysis(d.scores);
-            document.getElementById('detail-modal').classList.remove('hidden');
-        }
-
         async function loadCorporateStats() {
             const snap = await db.collection('submissions').get();
             if (snap.empty) return;
             let sum = [0, 0, 0, 0, 0];
             snap.forEach(doc => { const d = doc.data(); if(d.scores) d.scores.forEach((s,i) => sum[i]+= (s||0)); });
-            renderRadarChart('corporateRadarChart', sum.map(v => v/snap.size), 'JHL Average', true);
+            const finalAvg = sum.map(v => v/snap.size);
+            renderRadarChart('corporateRadarChart', finalAvg, 'JHL Average', true);
+            generateGeneralGroupAnalysis(finalAvg);
+        }
+
+        function generateGeneralGroupAnalysis(avgScores) {
+            const container = document.getElementById('general-corporate-analysis');
+            const groupAvg = avgScores.reduce((a, b) => a + b, 0) / 5;
+            const lowestIndex = avgScores.indexOf(Math.min(...avgScores));
+            
+            const roadmap = [
+                "Standarisasi Infrastruktur GTM/GA4 di seluruh unit grup.",
+                "Audit serentak Budget Ads untuk cegah pemborosan.",
+                "Perbaikan SEO & UX Website serentak di JHL Collection.",
+                "Workshop Revenue-Marketing Alignment antar unit.",
+                "Pelatihan Content ROI untuk tim kreatif hotel."
+            ];
+
+            let summaryText = groupAvg < 70 ? "Kondisi 'Transitionary'. Infrastruktur dasar sudah ada, namun koordinasi antar departemen masih perlu ditingkatkan secara grup." : "Kondisi 'Market Leader'. Digital JHL Group sudah solid.";
+
+            container.innerHTML = `
+                <div class="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
+                    <span class="text-indigo-600 text-[9px] font-black uppercase tracking-widest italic block mb-3">Group Summary</span>
+                    <p class="text-[12px] font-bold text-slate-700 leading-relaxed">${summaryText}</p>
+                </div>
+                <div class="p-8 bg-indigo-900 rounded-[2.5rem] shadow-xl text-white">
+                    <span class="text-indigo-300 text-[9px] font-black uppercase tracking-widest italic block mb-3">Priority Group Training</span>
+                    <p class="text-[12px] font-bold leading-relaxed italic">Berdasarkan data grup, pelatihan wajib adalah: <br><span class="text-indigo-200 mt-2 block underline">${roadmap[lowestIndex]}</span></p>
+                </div>
+            `;
         }
 
         function renderRadarChart(canvasId, scores, label, isCorp) {
@@ -251,18 +223,41 @@
                         backgroundColor: isCorp ? 'rgba(99, 102, 241, 0.2)' : 'rgba(168, 85, 247, 0.2)',
                         borderColor: isCorp ? '#6366f1' : '#a855f7',
                         borderWidth: 3, pointRadius: 5
-                    }, {
-                        label: 'Standard', data: [100, 100, 100, 100, 100],
-                        borderColor: '#e2e8f0', borderWidth: 1, borderDash: [5, 5]
                     }]
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    scales: { r: { suggestedMin: 0, suggestedMax: 100, ticks: { display: false }, pointLabels: { font: { size: 9, weight: '800' } } } },
-                    plugins: { legend: { position: 'bottom', labels: { font: { size: 10, weight: '700' } } } }
+                    scales: { r: { suggestedMin: 0, suggestedMax: 100, ticks: { display: false }, pointLabels: { font: { size: 9, weight: '800' } } } }
                 }
             };
             if(isCorp) corporateChart = new Chart(ctx, config); else individualChart = new Chart(ctx, config);
+        }
+
+        function generateStrategicAnalysis(scores) {
+            const trainings = ["Data Mastery", "Ads Optimization", "SEO Audit", "Revenue Sync", "Content Strategy"];
+            const lowIdx = scores.indexOf(Math.min(...scores));
+            return `
+                <div class="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
+                    <span class="text-indigo-600 text-[9px] font-black uppercase tracking-widest italic block mb-3">SDM Analysis</span>
+                    <p class="text-[12px] font-bold text-slate-700 leading-relaxed">${scores[0] < 50 ? 'Risiko Data: Keputusan belum berbasis data valid.' : 'Stabil: Kompetensi memadai.'}</p>
+                </div>
+                <div class="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
+                    <span class="text-indigo-600 text-[9px] font-black uppercase tracking-widest italic block mb-3">Unit Training</span>
+                    <p class="text-[12px] font-bold text-slate-700 leading-relaxed">Fokus Pelatihan: <b>${trainings[lowIdx]}</b></p>
+                </div>
+                <div class="p-8 bg-indigo-900 rounded-[2.5rem] shadow-xl text-white">
+                    <span class="text-indigo-300 text-[9px] font-black uppercase tracking-widest italic block mb-3">Strategic Recommendation</span>
+                    <p class="text-[12px] font-bold leading-relaxed italic">${scores[1] < 50 ? 'Gunakan Agency Specialist.' : 'Optimasi Tim Internal.'}</p>
+                </div>
+            `;
+        }
+
+        function showDetail(d) {
+            document.getElementById('modal-hotel-name').innerText = d.hotelName;
+            document.getElementById('modal-overall-score').innerText = `${Math.round(d.overall)}%`;
+            renderRadarChart('individualRadarChart', d.scores, 'Unit Performance', false);
+            document.getElementById('strategic-analysis-box').innerHTML = generateStrategicAnalysis(d.scores);
+            document.getElementById('detail-modal').classList.remove('hidden');
         }
 
         function closeModal() { document.getElementById('detail-modal').classList.add('hidden'); }
