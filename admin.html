@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JHL Corporate Digital Maturity Portal</title>
+    <title>JHL Corporate Admin - Digital Audit</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -20,96 +20,90 @@
 
     <div id="auth-view" class="min-h-screen flex items-center justify-center p-6">
         <div class="max-w-md w-full bg-white rounded-[2.5rem] p-10 shadow-2xl text-center space-y-8 border border-slate-100">
-            <h1 class="text-2xl font-black text-slate-800 uppercase italic">Admin Portal</h1>
-            <div class="space-y-4 text-left">
-                <input type="email" id="admin-email" placeholder="Email Corporate" class="w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500">
-                <input type="password" id="admin-pw" placeholder="Password Security" class="w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500">
-                <button onclick="loginAdmin()" id="login-btn" class="w-full bg-[#0f172a] text-white p-4 rounded-2xl font-black hover:bg-indigo-600 transition shadow-lg mt-4 uppercase">SIGN IN</button>
+            <h1 class="text-2xl font-black text-slate-800 uppercase italic tracking-tighter">Admin Portal</h1>
+            <div class="space-y-4">
+                <input type="email" id="admin-email" placeholder="Corporate Email" class="w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold text-sm">
+                <input type="password" id="admin-pw" placeholder="Password" class="w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold text-sm">
+                <button onclick="loginAdmin()" class="w-full bg-[#0f172a] text-white p-4 rounded-2xl font-black hover:bg-indigo-600 transition shadow-lg uppercase tracking-widest text-xs">Sign In</button>
             </div>
         </div>
     </div>
 
     <div id="dashboard-view" class="hidden">
-        <header class="bg-[#0f172a] text-white p-6 border-b border-slate-800 sticky top-0 z-50 flex justify-between items-center">
+        <header class="bg-[#0f172a] text-white p-6 border-b border-slate-800 sticky top-0 z-50 flex justify-between items-center px-12">
             <h1 class="text-xl font-black uppercase italic tracking-tighter">Corporate Digital Hub</h1>
             <button onclick="logout()" class="text-[10px] font-bold uppercase bg-red-500/10 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-white transition">Logout</button>
         </header>
 
-        <main class="max-w-7xl mx-auto p-6 space-y-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-                <div class="space-y-6">
-                    <div class="bg-indigo-600 p-8 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden">
-                        <p class="text-xs font-bold uppercase opacity-70 tracking-widest mb-1">Unit Hotel Terdata</p>
-                        <h3 id="total-count" class="text-7xl font-black italic">0</h3>
-                    </div>
-                    
-                    <div class="bg-[#0f172a] border border-slate-800 rounded-[2.5rem] p-8 text-white space-y-4">
-                        <h4 class="text-lg font-black uppercase italic text-indigo-300">Rekomendasi Strategis</h4>
-                        <ul class="text-xs text-slate-300 list-decimal list-inside space-y-2 font-semibold">
-                            <li>Fokus pada Technical Support Tracking (Domain 1).</li>
-                            <li>Lakukan Creative Separation (Domain 5).</li>
-                            <li>Pastikan Revenue Alignment antar unit.</li>
-                        </ul>
-                    </div>
+        <main class="max-w-7xl mx-auto p-12 space-y-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-indigo-600 p-10 rounded-[3rem] text-white shadow-xl flex flex-col justify-center">
+                    <p class="text-[10px] font-black uppercase opacity-70 tracking-[0.2em] mb-2">Total Unit Terdata</p>
+                    <h3 id="total-count" class="text-8xl font-black italic tracking-tighter">0</h3>
                 </div>
-
-                <div class="md:col-span-2 bg-white rounded-[2.5rem] p-10 shadow-lg border border-slate-100">
-                    <h4 class="text-sm font-black uppercase text-slate-500 tracking-widest italic mb-6">Analisis Kompetensi Korporat</h4>
-                    <div class="h-[400px]">
+                <div class="md:col-span-2 bg-white rounded-[3rem] p-10 shadow-lg border border-slate-100">
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-6 italic">Analisis Kompetensi Korporat</h4>
+                    <div class="h-[350px]">
                         <canvas id="corporateRadarChart"></canvas>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-8 border-b flex justify-between items-center bg-slate-50">
-                    <h4 class="font-black uppercase text-sm text-slate-500 tracking-widest italic">Daftar Hasil Audit Hotel</h4>
-                    <button onclick="loadData()" class="text-xs font-bold text-indigo-600 uppercase">Sync Data</button>
+            <div class="bg-white rounded-[3rem] shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-10 border-b flex justify-between items-center bg-slate-50/50">
+                    <h4 class="font-black uppercase text-xs text-slate-500 tracking-[0.2em] italic">Daftar Hasil Audit Hotel</h4>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
-                        <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-400">
+                        <thead class="bg-slate-50 text-[10px] uppercase font-black text-slate-400 tracking-widest">
                             <tr>
-                                <th class="p-8">Unit Hotel</th>
-                                <th class="p-8">Avg Score</th>
-                                <th class="p-8">Status</th>
-                                <th class="p-8">Waktu Input</th>
-                                <th class="p-8 text-right">Aksi</th>
+                                <th class="p-10">Unit Hotel</th>
+                                <th class="p-10 text-center">Avg Score</th>
+                                <th class="p-10">Status</th>
+                                <th class="p-10">Waktu Input</th>
+                                <th class="p-10 text-right">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="admin-table-body" class="divide-y divide-slate-100 text-sm font-semibold italic"></tbody>
+                        <tbody id="admin-table-body" class="divide-y divide-slate-100 text-sm font-bold italic text-slate-700 uppercase tracking-tighter"></tbody>
                     </table>
                 </div>
             </div>
         </main>
     </div>
 
-    <div id="detail-modal" class="hidden fixed inset-0 bg-slate-900/95 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-4xl rounded-[3rem] overflow-hidden shadow-2xl relative">
-            <button onclick="closeModal()" class="absolute top-6 right-8 text-slate-400 hover:text-red-500 transition font-black text-3xl z-10">&times;</button>
+    <div id="detail-modal" class="hidden fixed inset-0 bg-slate-900/95 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-5xl rounded-[3.5rem] overflow-y-auto max-h-[90vh] shadow-2xl relative">
+            <button onclick="closeModal()" class="absolute top-8 right-10 text-slate-400 hover:text-red-500 transition font-black text-4xl z-10">&times;</button>
+            
             <div class="grid grid-cols-1 md:grid-cols-2">
-                <div class="p-12 border-r border-slate-100 bg-slate-50 space-y-6">
+                <div class="p-14 border-r border-slate-100 bg-slate-50 space-y-8">
                     <div>
-                        <h2 id="modal-hotel-name" class="text-4xl font-black italic uppercase text-slate-900 tracking-tighter">Hotel Name</h2>
-                        <p id="modal-date" class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1"></p>
+                        <h2 id="modal-hotel-name" class="text-5xl font-black italic uppercase text-slate-900 tracking-tighter leading-none">Hotel</h2>
+                        <p id="modal-date" class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-4"></p>
                     </div>
-                    <div class="bg-indigo-600 p-8 rounded-3xl text-white">
-                        <p class="text-xs font-bold uppercase opacity-80 mb-1">Overall Digital Score</p>
-                        <h3 id="modal-overall-score" class="text-7xl font-black italic">0%</h3>
+                    <div class="bg-indigo-600 p-10 rounded-[2.5rem] text-white">
+                        <p class="text-[10px] font-black uppercase opacity-70 tracking-widest mb-2">Overall Digital Maturity</p>
+                        <h3 id="modal-overall-score" class="text-8xl font-black italic tracking-tighter">0%</h3>
                     </div>
                 </div>
-                <div class="p-12">
-                    <h4 class="text-xs font-black uppercase text-slate-500 tracking-widest italic mb-6">Radar Performance Unit</h4>
-                    <div class="h-[300px]">
+                <div class="p-14 flex flex-col justify-center">
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-8 italic">Radar Performance Unit</h4>
+                    <div class="h-[320px]">
                         <canvas id="individualRadarChart"></canvas>
                     </div>
                 </div>
+            </div>
+
+            <div class="p-14 border-t border-slate-100 bg-white">
+                <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] mb-10 italic text-center">Executive Strategic Recommendation</h4>
+                <div id="strategic-analysis-box" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    </div>
             </div>
         </div>
     </div>
 
     <script>
-        // MASUKKAN CONFIG FIREBASE ANDA DISINI
+        // --- MASUKKAN CONFIG FIREBASE ANDA DI SINI ---
         const firebaseConfig = {
             apiKey: "AIzaSyDq8cuvGJJrWD9_R7NoShQTRWhrj0-CNVc",
             authDomain: "audit-digital-jhl-v2.firebaseapp.com",
@@ -125,11 +119,10 @@
         let corporateChart = null;
         let individualChart = null;
 
-        // Nama Domain Baru Sesuai Revisi Anda
         const globalCategories = [
             "Data & Tracking", 
             "Performance Ads", 
-            "SEO/Web Ecosystem", 
+            "SEO & Web", 
             "Revenue Sync", 
             "Content Strategy"
         ];
@@ -156,7 +149,7 @@
             try {
                 await firebase.auth().signInWithEmailAndPassword(email, pw);
             } catch (e) {
-                alert("Login Gagal! Pastikan email dan password benar.");
+                alert("Akses Ditolak: Periksa Email/Password.");
             }
         }
 
@@ -171,17 +164,69 @@
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition";
                     tr.innerHTML = `
-                        <td class="p-8 font-black text-slate-800 uppercase italic tracking-tighter">${data.hotelName || 'Unit'}</td>
-                        <td class="p-8 font-black text-indigo-600 text-2xl">${Math.round(data.overall || 0)}%</td>
-                        <td class="p-8"><span class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase ${data.overall > 70 ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}">${data.overall > 70 ? 'Advanced' : 'Standard'}</span></td>
-                        <td class="p-8 text-slate-400 text-xs">${data.timestamp ? new Date(data.timestamp).toLocaleString('id-ID') : '-'}</td>
-                        <td class="p-8 text-right">
-                            <button onclick='showDetail(${JSON.stringify(data)})' class="bg-slate-800 text-white text-[10px] font-black uppercase px-6 py-3 rounded-2xl hover:bg-indigo-600 transition">Detail</button>
-                        </td>
+                        <td class="p-10">${data.hotelName || 'Unit'}</td>
+                        <td class="p-10 text-center text-2xl font-black text-indigo-600">${Math.round(data.overall || 0)}%</td>
+                        <td class="p-10"><span class="px-4 py-1.5 rounded-full text-[9px] font-black uppercase ${data.overall > 70 ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}">${data.overall > 70 ? 'Advanced' : 'Standard'}</span></td>
+                        <td class="p-10 text-slate-400 text-[10px]">${data.timestamp ? new Date(data.timestamp).toLocaleString('id-ID') : '-'}</td>
+                        <td class="p-10 text-right"><button onclick='showDetail(${JSON.stringify(data)})' class="bg-[#0f172a] text-white text-[9px] font-black uppercase px-6 py-3 rounded-xl hover:bg-indigo-600 transition tracking-widest">Detail</button></td>
                     `;
                     tbody.appendChild(tr);
                 });
             });
+        }
+
+        // LOGIKA ANALISIS STRATEGIS (Tujuan 1, 2, 3)
+        function generateStrategicAnalysis(scores) {
+            // scores index: 0=Data, 1=Ads, 2=SEO, 3=RevSync, 4=Content
+            let html = "";
+
+            // 1. Analisis Kualitas & Fokus SDM
+            let sdmStatus = (scores[4] > 75 && scores[1] < 50) ? 
+                "Tim sangat fokus pada produksi konten kreatif, namun kurang dalam eksekusi teknis iklan (Performance)." : 
+                "Kualitas SDM seimbang antara kreativitas dan kemampuan manajemen data.";
+            
+            html += `
+                <div class="space-y-4">
+                    <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-black text-xs">1</div>
+                    <h5 class="font-black text-xs uppercase tracking-tighter italic">Kualitas SDM Digital</h5>
+                    <p class="text-xs text-slate-500 font-semibold leading-relaxed">${sdmStatus}</p>
+                </div>`;
+
+            // 2. Rekomendasi Pelatihan (HC/Corporate)
+            let trainingNeed = (scores[0] < 60 || scores[2] < 60) ? 
+                "Diperlukan Pelatihan Advanced GA4 & GTM untuk meningkatkan akurasi data dan pemantauan trafik website secara internal." : 
+                "Kompetensi teknis sudah memadai. Fokus pada pelatihan tren AI Marketing terbaru.";
+
+            html += `
+                <div class="space-y-4">
+                    <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-black text-xs">2</div>
+                    <h5 class="font-black text-xs uppercase tracking-tighter italic">Kebutuhan Pelatihan</h5>
+                    <p class="text-xs text-slate-500 font-semibold leading-relaxed">${trainingNeed}</p>
+                </div>`;
+
+            // 3. Pertimbangan Agency vs Hiring
+            let hiringAdvice = (scores[1] < 45 || scores[3] < 45) ? 
+                "Direkomendasikan bekerja sama dengan Digital Agency atau merekrut Regional Specialist untuk mengamankan ROI iklan dan Rate Parity." : 
+                "Unit mampu mengelola operasional secara mandiri tanpa bantuan pihak ketiga/agency.";
+
+            html += `
+                <div class="space-y-4">
+                    <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-black text-xs">3</div>
+                    <h5 class="font-black text-xs uppercase tracking-tighter italic">Strategi Organisasi</h5>
+                    <p class="text-xs text-slate-500 font-semibold leading-relaxed">${hiringAdvice}</p>
+                </div>`;
+
+            return html;
+        }
+
+        function showDetail(data) {
+            document.getElementById('modal-hotel-name').innerText = data.hotelName;
+            document.getElementById('modal-date').innerText = `Record Date: ${data.timestamp ? new Date(data.timestamp).toLocaleString('id-ID') : '-'}`;
+            document.getElementById('modal-overall-score').innerText = `${Math.round(data.overall)}%`;
+            
+            renderRadarChart('individualRadarChart', data.scores, 'Unit Data', false);
+            document.getElementById('strategic-analysis-box').innerHTML = generateStrategicAnalysis(data.scores);
+            document.getElementById('detail-modal').classList.remove('hidden');
         }
 
         async function loadCorporateStats() {
@@ -193,7 +238,7 @@
                 if (d.scores) { d.scores.forEach((s, i) => { sumScores[i] += (s || 0); }); }
             });
             const avgScores = sumScores.map(v => Math.round(v / snap.size));
-            renderRadarChart('corporateRadarChart', avgScores, 'Rata-Rata JHL', true);
+            renderRadarChart('corporateRadarChart', avgScores, 'JHL Corporate Average', true);
         }
 
         function renderRadarChart(canvasId, scoresData, labelName, isCorporate) {
@@ -201,20 +246,21 @@
             if (isCorporate && corporateChart) corporateChart.destroy();
             if (!isCorporate && individualChart) individualChart.destroy();
 
-            const newChart = new Chart(ctx, {
+            const chart = new Chart(ctx, {
                 type: 'radar',
                 data: {
                     labels: globalCategories,
                     datasets: [{
                         label: labelName,
                         data: scoresData,
-                        backgroundColor: 'rgba(251, 191, 36, 0.2)',
-                        borderColor: '#fbbf24',
-                        borderWidth: 2
-                    }, {
-                        label: 'Standard',
-                        data: [100, 100, 100, 100, 100],
+                        backgroundColor: 'rgba(99, 102, 241, 0.2)',
                         borderColor: '#6366f1',
+                        borderWidth: 3,
+                        pointRadius: 4
+                    }, {
+                        label: 'Standard Target',
+                        data: [100, 100, 100, 100, 100],
+                        borderColor: '#cbd5e1',
                         borderWidth: 1,
                         borderDash: [5, 5]
                     }]
@@ -222,18 +268,11 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { r: { suggestedMin: 0, suggestedMax: 100, ticks: { display: false } } }
+                    scales: { r: { suggestedMin: 0, suggestedMax: 100, ticks: { display: false }, pointLabels: { font: { size: 9, weight: '800' } } } },
+                    plugins: { legend: { position: 'bottom', labels: { font: { size: 10, weight: '700' } } } }
                 }
             });
-            if (isCorporate) corporateChart = newChart; else individualChart = newChart;
-        }
-
-        function showDetail(data) {
-            document.getElementById('modal-hotel-name').innerText = data.hotelName;
-            document.getElementById('modal-date').innerText = `Input: ${data.timestamp ? new Date(data.timestamp).toLocaleString('id-ID') : '-'}`;
-            document.getElementById('modal-overall-score').innerText = `${Math.round(data.overall)}%`;
-            renderRadarChart('individualRadarChart', data.scores, 'Unit Performance', false);
-            document.getElementById('detail-modal').classList.remove('hidden');
+            if (isCorporate) corporateChart = chart; else individualChart = chart;
         }
 
         function closeModal() { document.getElementById('detail-modal').classList.add('hidden'); }
