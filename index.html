@@ -3,144 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JHL Collections - Digital Maturity Audit</title>
+    <title>JHL Digital Maturity Audit - Survey</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; }
-        .hidden { display: none !important; }
-        .survey-grid { display: grid; grid-template-columns: 3fr repeat(5, 1fr); border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
-        .grid-cell { padding: 12px; border: 0.5px solid #f1f5f9; display: flex; align-items: center; justify-content: center; }
-        .grid-label { justify-content: flex-start; font-size: 0.875rem; color: #334155; }
-        .grid-header { background: #0f172a; color: white; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; }
-        input[type="radio"] { width: 1.2rem; height: 1.2rem; cursor: pointer; accent-color: #4f46e5; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        
+        .ai-gradient { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        
+        /* Custom Radio Styling */
+        input[type="radio"] {
+            appearance: none;
+            width: 24px; height: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        input[type="radio"]:checked {
+            border-color: #6366f1;
+            background: #6366f1;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+        }
+        input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px; height: 8px;
+            background: white;
+            border-radius: 50%;
+        }
+
         .step-content { display: none; }
-        .step-content.active { display: block; animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .step-content.active { display: block; animation: slideUp 0.5s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="bg-slate-50">
+<body class="min-h-screen">
 
-    <div id="loader" class="fixed inset-0 bg-[#0f172a] z-[100] flex flex-col items-center justify-center text-white">
-        <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p class="text-[10px] font-bold tracking-widest uppercase">Menghubungkan ke Database...</p>
+    <div id="loader" class="fixed inset-0 bg-[#0f172a] z-[100] flex flex-col items-center justify-center">
+        <div class="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-6"></div>
+        <p class="text-[10px] font-black tracking-[0.4em] uppercase text-indigo-400">Initializing Intelligence System</p>
     </div>
 
-    <div id="view-landing" class="min-h-screen flex items-center justify-center p-6 bg-[#0f172a] text-white">
-        <div class="max-w-md w-full text-center space-y-8">
-            <div class="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center mx-auto shadow-2xl rotate-3">
-                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-            </div>
-            <div>
-                <h1 class="text-4xl font-black tracking-tighter uppercase">Digital Maturity Audit</h1>
-                <p class="text-indigo-400 font-bold text-sm tracking-widest mt-2">Instrumen Evaluasi Teknis & Strategis</p>
+    <div id="view-landing" class="min-h-screen flex items-center justify-center p-6">
+        <div class="max-w-xl w-full text-center space-y-12">
+            <div class="w-24 h-24 ai-gradient rounded-[2rem] flex items-center justify-center mx-auto shadow-2xl rotate-6 hover:rotate-0 transition-transform duration-500">
+                <span class="text-white font-black text-4xl italic">JHL</span>
             </div>
             <div class="space-y-4">
-                <input type="text" id="hotel-name-input" placeholder="Nama Unit (Contoh: JHL Solitaire)" class="w-full p-4 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:ring-2 focus:ring-indigo-500">
-                <button onclick="startSurvey()" class="w-full bg-indigo-600 p-4 rounded-xl font-bold uppercase tracking-widest hover:bg-indigo-700 transition shadow-lg">Mulai Survey</button>
+                <h1 class="text-5xl font-black tracking-tighter uppercase italic leading-none">Digital Maturity <br><span class="text-indigo-500">Audit 2024</span></h1>
+                <p class="text-slate-400 font-bold text-sm tracking-[0.2em] uppercase">Executive Evaluation for Business Units</p>
+            </div>
+            <div class="glass-card p-10 rounded-[3rem] space-y-6">
+                <input type="text" id="hotel-name-input" placeholder="Nama Unit (Contoh: JHL Solitaire)" 
+                    class="w-full p-5 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-center text-lg">
+                <button onclick="startSurvey()" class="w-full ai-gradient text-white p-5 rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] transition shadow-xl text-xs">Begin Audit</button>
             </div>
         </div>
     </div>
 
     <div id="view-survey" class="hidden min-h-screen">
-        <header class="bg-[#0f172a] text-white p-4 sticky top-0 z-50 flex justify-between items-center">
-            <span id="display-hotel-name" class="font-bold uppercase text-xs">Unit Name</span>
-            <div id="step-info-top" class="text-[10px] font-black text-slate-500 uppercase">Progress: 1/5</div>
+        <header class="p-8 flex justify-between items-center max-w-7xl mx-auto">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 ai-gradient rounded-xl flex items-center justify-center font-black italic text-sm">J</div>
+                <div>
+                    <h2 id="display-hotel-name" class="font-black uppercase italic tracking-tighter text-lg">Unit</h2>
+                    <p id="step-info-top" class="text-[9px] font-black text-indigo-400 uppercase tracking-widest">Progress: 1/5</p>
+                </div>
+            </div>
         </header>
-        <div class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div class="lg:col-span-8 space-y-6">
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden" id="survey-container"></div>
-                <div class="flex justify-between items-center bg-white p-6 rounded-2xl border shadow-sm">
-                    <button id="prev-btn" onclick="moveStep(-1)" class="px-6 py-3 font-bold text-slate-400 text-sm uppercase">Kembali</button>
-                    <button id="next-btn" onclick="moveStep(1)" class="px-10 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-md uppercase text-sm tracking-widest">Lanjut</button>
+
+        <main class="max-w-7xl mx-auto px-8 py-4 grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div class="lg:col-span-8 space-y-8 pb-20">
+                <div id="survey-container">
+                    </div>
+                
+                <div class="flex justify-between items-center">
+                    <button id="prev-btn" onclick="moveStep(-1)" class="px-8 py-4 font-black text-slate-500 text-xs uppercase tracking-widest hover:text-white transition">Previous</button>
+                    <button id="next-btn" onclick="moveStep(1)" class="px-12 py-4 ai-gradient text-white rounded-2xl font-black shadow-xl uppercase text-xs tracking-widest hover:scale-105 transition">Continue</button>
                 </div>
             </div>
+
             <div class="lg:col-span-4">
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 sticky top-24">
-                    <div class="h-64"><canvas id="liveRadar"></canvas></div>
+                <div class="glass-card p-10 rounded-[3rem] sticky top-12">
+                    <h4 class="text-[10px] font-black uppercase text-indigo-400 tracking-[0.3em] mb-8 italic text-center">Live Capability Map</h4>
+                    <div class="h-72">
+                        <canvas id="liveRadar"></canvas>
+                    </div>
+                    <div class="mt-8 pt-8 border-t border-white/5">
+                        <p class="text-[10px] font-bold text-slate-500 italic text-center leading-relaxed">Grafik akan terupdate secara real-time berdasarkan jawaban Anda.</p>
+                    </div>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
-    <div id="view-success" class="hidden min-h-screen flex items-center justify-center p-6 bg-slate-900 text-white text-center">
-        <div class="max-w-md space-y-6">
-            <div class="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-2xl">
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="4" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
+    <div id="view-success" class="hidden min-h-screen flex items-center justify-center p-6 text-center">
+        <div class="max-w-lg space-y-8">
+            <div class="w-24 h-24 bg-emerald-500/20 text-emerald-500 rounded-[2.5rem] flex items-center justify-center mx-auto shadow-2xl border border-emerald-500/30">
+                <svg class="w-12 h-12" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             </div>
-            <h1 class="text-3xl font-black uppercase">Berhasil Dikirim</h1>
-            <p class="text-slate-400 text-sm italic">Audit <span id="success-hotel-name" class="text-white font-bold"></span> telah tersimpan.</p>
-            <button onclick="location.reload()" class="bg-white text-indigo-950 px-10 py-4 rounded-xl font-bold uppercase text-xs">Selesai</button>
+            <div class="space-y-4">
+                <h1 class="text-5xl font-black uppercase italic tracking-tighter">Audit Secured</h1>
+                <p class="text-slate-400 font-bold italic">Data untuk <span id="success-hotel-name" class="text-white"></span> telah berhasil diunggah ke Digital Hub Korporat.</p>
+            </div>
+            <button onclick="location.reload()" class="bg-white text-slate-900 px-12 py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-indigo-500 hover:text-white transition shadow-2xl">Return to Portal</button>
         </div>
     </div>
 
     <script>
-        const CATEGORIES = [
-            { title: "Domain 1: Arsitektur Data & Pelacakan (Tracking)", questions: 
-                ["Validasi data real-time menggunakan GTM Debug Mode.",
-                 "Setup Google Tag Manager (GTM) untuk pelacakan klik tombol reservasi.",
-                 "Integrasi GA4 E-commerce untuk melacak pendapatan dari Booking Engine.",
-                 "Konfigurasi Server-Side Tracking untuk menghadapi pembatasan Cookie iOS.",
-                 "Implementasi Meta Pixel dan Conversion API (CAPI) secara manual.",
-                 "Melakukan Cross-Domain tracking antara domain hotel (.com) dan vendor BE.",
-                 "Pengaturan Custom Dimensions di GA4 untuk melacak asal market (Domestic/Intl).",
-                 "Pelacakan formulir MICE/Wedding dengan kustomisasi trigger.",
-                 "Setup pelacakan klik link WhatsApp menggunakan UTM Parameters.",
-                 "Audit data leakage (kebocoran data) antar halaman website."] },
-            { title: "Domain 2: Strategi Iklan Berbayar (Performance Ads)", questions: 
-                ["Optimasi Google Hotel Ads (GHA) dan manajemen komisi (Pay-per-Stay).",
-                 "Manajemen kampanye Search Engine Marketing (SEM) berbasis Brand Protection.",
-                 "Setup Dynamic Creative Optimization (DCO) untuk iklan Meta.",
-                 "Pembuatan Custom Audiences berbasis database email tamu dari PMS.",
-                 "Strategi Retargeting untuk pengunjung yang 'abandoned booking'.",
-                 "Analisis 'Impression Share' iklan dibandingkan kompetitor hotel terdekat.",
-                 "Pengaturan Bid Strategy (tROAS) untuk maksimalkan nilai booking.",
-                 "A/B Testing judul iklan dan visual untuk meningkatkan CTR (Click-Through Rate).",
-                 "Setup Advantage+ Shopping Campaigns untuk penawaran F&B hotel.",
-                 "Manajemen budget iklan berbasis occupancy (Naikkan budget saat Low Season)."] },
-            { title: "Domain 3: SEO & Ekosistem Website", questions: 
-                ["Optimasi Google Business Profile (GBP) untuk Local SEO ranking.",
-                 "Audit Technical SEO: Page Speed, Core Web Vitals, dan Mobile-Friendliness.",
-                 "Manajemen konten blog berbasis keyword 'Things to do in [City]'.",
-                 "Penerapan Schema Markup (JSON-LD) khusus tipe Hotel/Business.",
-                 "Analisis Backlink profile hotel dan strategi link building lokal.",
-                 "Optimasi Image SEO (Alt-text & WebP format) untuk galeri hotel.",
-                 "Manajemen Internal Linking antar halaman promo dan tipe kamar.",
-                 "Penggunaan Google Search Console untuk monitoring indexing issue.",
-                 "Strategi optimasi Meta-Titles agar menarik klik dibanding OTA.",
-                 "Audit UI/UX website: Seberapa mudah tamu melakukan booking dalam 3 klik."] },
-            { title: "Domain 4: Revenue Sync & Distribusi Digital", questions: 
-                ["Pemahaman Rate Parity dan pengaruhnya terhadap biaya iklan.",
-                 "Analisis 'Demand Forecast' dari Digital Tools untuk menentukan budget marketing.",
-                 "Integrasi promo eksklusif website (Members Rate) di semua channel digital.",
-                 "Sinkronisasi ketersediaan kamar di Website vs OTA via Channel Manager.",
-                 "Analisis kontribusi channel digital terhadap total RGI (Revenue Generation Index).",
-                 "Strategi Upselling produk tambahan (Breakfast/Spa) di proses booking digital.",
-                 "Manajemen ulasan (Reputation Management) dan dampaknya ke konversi iklan.",
-                 "Analisis 'Cost per Acquisition' (CPA) digital vs Komisi OTA.",
-                 "Pengaturan penawaran Geo-Targeting (Harga berbeda untuk tiap negara).",
-                 "Audit konsistensi foto dan deskripsi di Website vs OTA."] },
-            { title: "Domain 5: Strategi Konten & Manajemen Organisasi", questions: 
-                ["Pembuatan Content Pillars untuk Social Media yang berorientasi konversi.",
-                 "Scripting video Reels/TikTok yang fokus pada 'Direct Booking Benefit'.",
-                 "Manajemen database email tamu untuk Monthly Newsletter & CRM.",
-                 "Otomasi respon chatbot/DM untuk memfilter leads reservasi.",
-                 "Penyusunan laporan bulanan terpadu (Ads + Web + Revenue).",
-                 "Analisis Heatmap (Hotjar) untuk melihat di mana user berhenti scroll.",
-                 "Manajemen kolaborasi dengan Influencer/KOL berbasis performa (ROI).",
-                 "Alokasi waktu kerja: Berapa jam untuk strategis vs berapa jam untuk admin.",
-                 "Manajemen aset digital (DAM) agar mudah diakses oleh tim Sales.",
-                 "Strategi krisis marketing saat hotel mendapat komplain viral."] }
-        ];
-
-        let currentStep = 0, hotelName = "", liveRadar = null, db = null;
-        let userScores = Array(5).fill(0).map(() => Array(10).fill(0));
-
-        // MASUKKAN CONFIG GOA4 JHLCOLLECTION ANDA DI SINI
+        // CONFIG FIREBASE (Sama dengan sebelumnya)
         const firebaseConfig = {
             apiKey: "AIzaSyDq8cuvGJJrWD9_R7NoShQTRWhrj0-CNVc",
             authDomain: "audit-digital-jhl-v2.firebaseapp.com",
@@ -150,49 +132,74 @@
             appId: "1:839003631596:web:64113b8bd1a38bf5d31ac9"
         };
 
+        const CATEGORIES = [
+            { title: "Data & Tracking", questions: ["Validasi data real-time menggunakan GTM Debug Mode.", "Setup GTM untuk pelacakan klik tombol reservasi.", "Integrasi GA4 E-commerce.", "Konfigurasi Server-Side Tracking.", "Implementasi Meta Pixel & CAPI.", "Cross-Domain tracking antara hotel & BE.", "Pengaturan Custom Dimensions di GA4.", "Pelacakan formulir MICE/Wedding.", "Setup pelacakan klik WhatsApp.", "Audit data leakage antar halaman."] },
+            { title: "Performance Ads", questions: ["Optimasi GHA & Pay-per-Stay.", "Manajemen SEM Brand Protection.", "Setup Dynamic Creative Optimization.", "Pembuatan Custom Audiences database PMS.", "Strategi Retargeting Abandoned Booking.", "Analisis Impression Share vs Competitor.", "Pengaturan Bid Strategy (tROAS).", "A/B Testing judul & visual iklan.", "Advantage+ Shopping F&B.", "Manajemen budget berbasis occupancy."] },
+            { title: "SEO & Web Ecosystem", questions: ["Optimasi Google Business Profile.", "Audit Technical SEO (Core Web Vitals).", "Manajemen konten blog keyword-based.", "Penerapan Schema Markup Hotel.", "Analisis Backlink & Link Building.", "Optimasi Image SEO (WebP format).", "Manajemen Internal Linking Promo.", "Monitoring GSC Indexing.", "Optimasi Meta-Titles vs OTA.", "Audit UI/UX Website Booking Flow."] },
+            { title: "Revenue Sync", questions: ["Pemahaman Rate Parity & Ad Cost.", "Analisis Demand Forecast Digital.", "Integrasi Member Rate di Digital Channel.", "Sinkronisasi Website vs OTA via CM.", "Analisis kontribusi RGI Digital.", "Strategi Digital Upselling.", "Reputation Management vs Conversion.", "Analisis CPA Digital vs Komisi OTA.", "Pengaturan penawaran Geo-Targeting.", "Audit konsistensi foto Website vs OTA."] },
+            { title: "Content & Org", questions: ["Content Pillars Conversion-Oriented.", "Scripting Reels/TikTok Direct Booking.", "Manajemen Database Email tamu.", "Otomasi chatbot/DM leads.", "Laporan bulanan terpadu (Ads/Web/Rev).", "Analisis Heatmap UX.", "Kolaborasi Influencer berbasis ROI.", "Alokasi waktu Strategis vs Admin.", "Manajemen Digital Asset (DAM).", "Strategi Krisis Marketing."] }
+        ];
+
+        let currentStep = 0, hotelName = "", liveRadar = null, db = null;
+        let userScores = Array(5).fill(0).map(() => Array(10).fill(0));
+
         async function initApp() {
             try {
                 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
                 db = firebase.firestore();
                 await firebase.auth().signInAnonymously();
-                console.log("Firebase Connected");
                 switchView('landing');
-            } catch (e) {
-                console.error("Init Error:", e);
-                alert("Koneksi gagal: " + e.message);
-            } finally {
-                document.getElementById('loader').classList.add('hidden');
-            }
+            } catch (e) { alert("Sistem Error: " + e.message); }
+            finally { document.getElementById('loader').classList.add('hidden'); }
         }
 
-        function switchView(viewId) {
-            ['landing', 'survey', 'success'].forEach(v => {
-                const el = document.getElementById('view-' + v);
-                if(el) el.classList.add('hidden');
-            });
-            const target = document.getElementById('view-' + viewId);
-            if(target) target.classList.remove('hidden');
+        function switchView(id) {
+            ['landing', 'survey', 'success'].forEach(v => document.getElementById('view-'+v).classList.add('hidden'));
+            document.getElementById('view-'+id).classList.remove('hidden');
         }
 
         function startSurvey() {
             hotelName = document.getElementById('hotel-name-input').value.trim();
-            if(!hotelName) return alert("Masukkan nama unit.");
+            if(!hotelName) return alert("Masukkan Nama Unit Hotel.");
             document.getElementById('display-hotel-name').innerText = hotelName;
-            renderSurvey();
-            initRadar();
-            switchView('survey');
+            renderSurvey(); initRadar(); switchView('survey');
         }
 
         function renderSurvey() {
             const container = document.getElementById('survey-container');
             container.innerHTML = '';
+            
             CATEGORIES.forEach((cat, cIdx) => {
                 const div = document.createElement('div');
-                div.className = `step-content ${cIdx === currentStep ? 'active' : ''}`;
-                let html = `<div class="bg-slate-50 p-6 border-b"><h2 class="text-xl font-black uppercase">${cat.title}</h2></div><div class="survey-grid min-w-[600px]"><div class="grid-cell grid-header">Indikator</div>${[1,2,3,4,5].map(i => `<div class="grid-cell grid-header">${i}</div>`).join('')}`;
+                div.className = `step-content ${cIdx === currentStep ? 'active' : ''} space-y-6`;
+                
+                let html = `
+                    <div class="mb-10">
+                        <span class="text-indigo-400 font-black text-[10px] uppercase tracking-[0.4em]">Section ${cIdx + 1}</span>
+                        <h2 class="text-4xl font-black italic uppercase tracking-tighter mt-2">${cat.title}</h2>
+                    </div>
+                    <div class="space-y-3">
+                `;
+
                 cat.questions.forEach((q, qIdx) => {
-                    html += `<div class="grid-cell grid-label font-bold">${q}</div>` + [1,2,3,4,5].map(v => `<div class="grid-cell"><input type="radio" name="q_${cIdx}_${qIdx}" value="${v}" onchange="userScores[${cIdx}][${qIdx}]=${v}; updateRadar();" ${userScores[cIdx][qIdx] == v ? 'checked' : ''}></div>`).join('');
+                    html += `
+                        <div class="glass-card p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-white/5 transition">
+                            <p class="font-bold text-sm text-slate-300 italic tracking-tight flex-1"><span class="text-indigo-500 mr-2">/</span> ${q}</p>
+                            <div class="flex items-center gap-4 bg-black/20 p-2 rounded-xl border border-white/5">
+                                <span class="text-[9px] font-black text-slate-600 mr-2 uppercase">Score</span>
+                                ${[1,2,3,4,5].map(v => `
+                                    <label class="flex flex-col items-center gap-1 cursor-pointer">
+                                        <input type="radio" name="q_${cIdx}_${qIdx}" value="${v}" 
+                                            onchange="userScores[${cIdx}][${qIdx}]=${v}; updateRadar();" 
+                                            ${userScores[cIdx][qIdx] == v ? 'checked' : ''}>
+                                        <span class="text-[8px] font-black text-slate-500">${v}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
                 });
+                
                 div.innerHTML = html + `</div>`;
                 container.appendChild(div);
             });
@@ -201,12 +208,12 @@
 
         function updateUI() {
             document.getElementById('step-info-top').innerText = `Progress: ${currentStep + 1}/5`;
-            document.getElementById('prev-btn').style.visibility = currentStep === 0 ? 'hidden' : 'visible';
-            document.getElementById('next-btn').innerText = currentStep === 4 ? "Submit" : "Lanjut";
+            document.getElementById('prev-btn').style.opacity = currentStep === 0 ? '0' : '1';
+            document.getElementById('next-btn').innerText = currentStep === 4 ? "Complete Audit" : "Continue";
         }
 
         function moveStep(dir) {
-            if(dir === 1 && userScores[currentStep].includes(0)) return alert("Mohon lengkapi semua poin.");
+            if(dir === 1 && userScores[currentStep].includes(0)) return alert("Mohon berikan skor pada semua indikator.");
             currentStep += dir;
             if(currentStep > 4) return submitData();
             renderSurvey();
@@ -217,8 +224,19 @@
             if(liveRadar) liveRadar.destroy();
             liveRadar = new Chart(ctx, {
                 type: 'radar',
-                data: { labels: CATEGORIES.map(c => c.title), datasets: [{ data: [0,0,0,0,0], borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)' }] },
-                options: { scales: { r: { min: 0, max: 100 } }, plugins: { legend: { display: false } } }
+                data: {
+                    labels: CATEGORIES.map(c => c.title),
+                    datasets: [{
+                        data: [0,0,0,0,0],
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                        borderWidth: 3, pointRadius: 0
+                    }]
+                },
+                options: {
+                    scales: { r: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, angleLines: { color: 'rgba(255,255,255,0.05)' }, ticks: { display: false }, pointLabels: { font: { size: 8, weight: '800' }, color: '#94a3b8' } } },
+                    plugins: { legend: { display: false } }
+                }
             });
         }
 
@@ -231,11 +249,13 @@
         async function submitData() {
             const averages = userScores.map(cat => (cat.reduce((a,b)=>a+b,0)/50)*100);
             const overall = averages.reduce((a,b)=>a+b,0)/5;
+            document.getElementById('loader').classList.remove('hidden');
             try {
                 await db.collection('submissions').add({ hotelName, scores: averages, overall, timestamp: new Date().toISOString() });
                 document.getElementById('success-hotel-name').innerText = hotelName;
                 switchView('success');
-            } catch (e) { alert("Gagal kirim: " + e.message); }
+            } catch (e) { alert("Submit Error: " + e.message); }
+            finally { document.getElementById('loader').classList.add('hidden'); }
         }
 
         window.onload = initApp;
